@@ -18,5 +18,7 @@ Or double-click `start-game.bat` on Windows.
 - 3 playable games per topic per level (63 games total)
 - Deterministic tap choices, large SVG scenes, and 2.4-second feedback overlays
 - Grown-up tips for every game
+- 21 guided lessons (one per topic per level): Look → Name → Play
+- Beginner Motion is a full picture-first lesson; the rest run as grown-up scripts
 
-Games are ready now. Lessons are intentionally empty “coming soon” shells for all three levels.
+See `science_playground/lessons/README.md` for the full map and what to draw next.
