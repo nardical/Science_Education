@@ -38,7 +38,7 @@ def _picture(scene: dict[str, Any], *, change: bool = False) -> None:
         spec = scene.get("look_scene")
         pose = scene.get("look_pose")
     if spec:
-        show_scene(spec, 0, pose=pose)
+        show_scene(spec, -1, pose=pose)
         return
     icon = scene.get("icon") or "🔬"
     st.markdown(

@@ -68,24 +68,21 @@ for later. Matter, living things, and gentle computing round out the week.
 ## What to build first
 
 All 21 lessons already run as grown-up scripts with tap checks and a jump into
-the three games. “Building” means giving a lesson the same kind of large,
-animated scene the polished beginner games already have.
+the three games. Waves 1 and 2 are picture-first in the app.
 
-**Wave 1 — prove the format (build these next)**
+**Wave 1 — picture-first now**
 
-1. **Beginner Motion** — playable now; the template.
-2. **Beginner Forces & Stuff** — Heavy/Light and Sink/Float already have real scenes.
-3. **Beginner Make & Test** — engineering is part of the physics path, not a sidecar.
-4. **Intermediate Motion** — proves the “picture first, then a science word” voice.
+1. **Beginner Motion** — Go, Stop, Push, Pull
+2. **Beginner Forces & Stuff** — Heavy, Float, Sticky
+3. **Beginner Make & Test** — Steady, Ramp, Fit
+4. **Intermediate Motion** — Farther, Faster, Downhill
 
-If only four lessons get full pictures, stop here.
+**Wave 2 — a complete first week, picture-first now**
 
-**Wave 2 — a complete first week**
-
-5. Beginner Light & Sound
-6. Beginner Matter
-7. Beginner Living Things
-8. Beginner Follow the Steps
+5. Beginner Light & Sound — Bright, Loud, High
+6. Beginner Matter — Splash, Cold, Melt
+7. Beginner Living Things — Alive, Plant, Hungry
+8. Beginner Follow the Steps — First, Next, Again
 
 A 5–6 year old can then walk every topic once.
 

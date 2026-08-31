@@ -120,7 +120,7 @@ _BEGINNER_FORCES = {
     "blurb": "Feel heavy and light. Guess sink or float. Spot sticky or slippy.",
     "minutes": 6,
     "wave": 1,
-    "playable": False,
+    "playable": True,
     "big_idea": "Some things feel heavy. Some things float. Some floors are slippy.",
     "kid_words": ["heavy", "light", "sink", "float", "sticky", "slippy"],
     "grown_up": "Use real objects if you can: a rock, a leaf, a rubber duck, a coin.",
@@ -133,6 +133,17 @@ _BEGINNER_FORCES = {
             _ask("Which one is heavy?", ["Rock", "Feather"], "Rock", "The rock is heavier than the feather."),
             _g("Heavy or Light", "forces_stuff_beginner.py", "run_heavy_or_light", "🪨"),
             science="Heavy things are harder to lift.",
+            look_scene={
+                "id": "lesson_heavy_light",
+                "scene": "heavy_light",
+                "picture": "🪨",
+                "heavy": "Rock",
+                "light": "Feather",
+                "heavy_pic": "🪨",
+                "light_pic": "🪶",
+                "question": "Which one is heavy?",
+            },
+            look_pose="play",
         ),
         _scene(
             "Sink or Float",
@@ -142,9 +153,29 @@ _BEGINNER_FORCES = {
             _g("Sink or Float", "forces_stuff_beginner.py", "run_sink_or_float", "🦆"),
             change={
                 "say": "Now we drop a rock in the same water.",
+                "look_scene": {
+                    "id": "lesson_sink_float_rock",
+                    "scene": "sink_float",
+                    "picture": "🪨",
+                    "item": "Rock",
+                    "kind": "rock",
+                    "answer": "Sink",
+                    "question": "Will the rock sink or float?",
+                },
+                "look_pose": "play",
                 **_ask("Will the rock sink or float?", ["Float", "Sink"], "Sink", "The rock sinks."),
             },
             science="Some things stay on top of water. Some go down.",
+            look_scene={
+                "id": "lesson_sink_float_duck",
+                "scene": "sink_float",
+                "picture": "🦆",
+                "item": "Rubber duck",
+                "kind": "duck",
+                "answer": "Float",
+                "question": "Will the duck sink or float?",
+            },
+            look_pose="play",
         ),
         _scene(
             "Sticky or Slippy",
@@ -153,6 +184,8 @@ _BEGINNER_FORCES = {
             _ask("Which floor is slippy?", ["Ice", "Rug"], "Ice", "Smooth ice has little grip."),
             _g("Sticky or Slippy", "forces_stuff_beginner.py", "run_sticky_or_slippy", "⛸️"),
             science="Slippy floors have less grip. Sticky floors hold on.",
+            look_scene={"id": "lesson_sticky", "scene": "sticky_slippy", "picture": "⛸️", "question": "Which floor is slippy?"},
+            look_pose="play",
         ),
     ],
 }
@@ -166,7 +199,7 @@ _BEGINNER_LIGHT = {
     "blurb": "Find light and dark. Hear loud and quiet. Hear high and low.",
     "minutes": 6,
     "wave": 2,
-    "playable": False,
+    "playable": True,
     "big_idea": "Light makes a place bright. Sounds can be loud or quiet, high or low.",
     "kid_words": ["light", "dark", "loud", "quiet", "high", "low"],
     "grown_up": "Whisper, then clap. Ring a small bell, then tap a pot. Keep it playful.",
@@ -179,6 +212,8 @@ _BEGINNER_LIGHT = {
             _ask("Which place is light?", ["Sunny yard", "Closed closet"], "Sunny yard", "Sunlight makes the yard bright."),
             _g("Light or Dark", "light_sound_beginner.py", "run_light_or_dark", "☀️"),
             science="Light makes things easy to see.",
+            look_scene={"id": "lesson_light_dark", "scene": "light_or_dark", "picture": "☀️", "question": "Which place is light?"},
+            look_pose="play",
         ),
         _scene(
             "Loud or Quiet",
@@ -187,6 +222,8 @@ _BEGINNER_LIGHT = {
             _ask("Which sound is loud?", ["Drum", "Whisper"], "Drum", "A drum makes a loud sound."),
             _g("Loud or Quiet", "light_sound_beginner.py", "run_loud_or_quiet", "🥁"),
             science="Loud sounds are bigger in our ears.",
+            look_scene={"id": "lesson_loud_quiet", "scene": "loud_or_quiet", "picture": "🥁", "question": "Which sound is loud?"},
+            look_pose="play",
         ),
         _scene(
             "High or Low",
@@ -195,6 +232,8 @@ _BEGINNER_LIGHT = {
             _ask("Which makes a high sound?", ["Tiny bell", "Big drum"], "Tiny bell", "A tiny bell often has high pitch."),
             _g("High or Low", "light_sound_beginner.py", "run_high_or_low", "🔔"),
             science="High sounds are squeaky. Low sounds are boomy.",
+            look_scene={"id": "lesson_high_low", "scene": "high_or_low", "picture": "🔔", "question": "Which makes a high sound?"},
+            look_pose="play",
         ),
     ],
 }
@@ -208,7 +247,7 @@ _BEGINNER_MATTER = {
     "blurb": "Spot splashy stuff. Feel hot and cold. Watch ice melt.",
     "minutes": 6,
     "wave": 2,
-    "playable": False,
+    "playable": True,
     "big_idea": "Some stuff holds its shape. Water can splash. Warm ice melts.",
     "kid_words": ["solid", "splash", "hot", "cold", "melt", "freeze"],
     "grown_up": "An ice cube on a plate is the whole lab. Watch it together.",
@@ -221,6 +260,8 @@ _BEGINNER_MATTER = {
             _ask("Which one can splash?", ["Water", "Wood block"], "Water", "Liquid water can splash."),
             _g("Solid or Splash", "matter_beginner.py", "run_solid_or_splash", "💦"),
             science="Water takes the shape of its cup. A block keeps its own shape.",
+            look_scene={"id": "lesson_solid_splash", "scene": "solid_or_splash", "picture": "💦", "question": "Which one can splash?"},
+            look_pose="play",
         ),
         _scene(
             "Hot or Cold",
@@ -229,6 +270,8 @@ _BEGINNER_MATTER = {
             _ask("Which one feels cold?", ["Ice cube", "Warm soup"], "Ice cube", "Ice is cold."),
             _g("Hot or Cold", "matter_beginner.py", "run_hot_or_cold", "🧊"),
             science="Cold and hot are how something feels.",
+            look_scene={"id": "lesson_hot_cold", "scene": "hot_or_cold", "picture": "🧊", "question": "Which one feels cold?"},
+            look_pose="play",
         ),
         _scene(
             "Melt or Freeze",
@@ -237,6 +280,8 @@ _BEGINNER_MATTER = {
             _ask("Ice warms. What happens?", ["Melt", "Freeze"], "Melt", "Warm ice melts into water."),
             _g("Melt or Freeze", "matter_beginner.py", "run_melt_or_freeze", "🌡️"),
             science="Warm ice becomes water.",
+            look_scene={"id": "lesson_melt", "scene": "melt_or_freeze", "picture": "🌡️", "question": "Ice warms. What happens?"},
+            look_pose="play",
         ),
     ],
 }
@@ -250,7 +295,7 @@ _BEGINNER_LIVING = {
     "blurb": "Spot living things. Tell plant from animal. Feed a hungry bird.",
     "minutes": 6,
     "wave": 2,
-    "playable": False,
+    "playable": True,
     "big_idea": "Living things grow and need food. Plants and animals are both alive.",
     "kid_words": ["living", "plant", "animal", "hungry", "food"],
     "grown_up": "A houseplant and a stuffed toy make this concrete. The toy is not living.",
@@ -263,6 +308,8 @@ _BEGINNER_LIVING = {
             _ask("Which one is living?", ["Puppy", "Toy car"], "Puppy", "A puppy grows and needs food."),
             _g("Living or Not", "living_things_beginner.py", "run_living_or_not", "🐶"),
             science="Living things grow and need food.",
+            look_scene={"id": "lesson_living_or_not", "scene": "living_or_not", "picture": "🐶", "question": "Which one is living?"},
+            look_pose="play",
         ),
         _scene(
             "Plant or Animal",
@@ -271,6 +318,8 @@ _BEGINNER_LIVING = {
             _ask("Which one is a plant?", ["Sunflower", "Rabbit"], "Sunflower", "A sunflower is a plant."),
             _g("Plant or Animal", "living_things_beginner.py", "run_plant_or_animal", "🌻"),
             science="Plants and animals are both living. They look different.",
+            look_scene={"id": "lesson_plant_animal", "scene": "plant_or_animal", "picture": "🌻", "question": "Which one is a plant?"},
+            look_pose="play",
         ),
         _scene(
             "Hungry or Full",
@@ -279,6 +328,8 @@ _BEGINNER_LIVING = {
             _ask("What does the hungry bird need?", ["Food", "A toy"], "Food", "Living animals need food."),
             _g("Hungry or Full", "living_things_beginner.py", "run_hungry_or_full", "🐦"),
             science="When living things are hungry, they need food.",
+            look_scene={"id": "lesson_hungry", "scene": "hungry_or_full", "picture": "🐦", "question": "What does the hungry bird need?"},
+            look_pose="play",
         ),
     ],
 }
@@ -292,7 +343,7 @@ _BEGINNER_MAKE = {
     "blurb": "Build a tower that stays. Pick a ramp. Fit the round hole.",
     "minutes": 6,
     "wave": 1,
-    "playable": False,
+    "playable": True,
     "big_idea": "We can build things, try them, and make them work better.",
     "kid_words": ["steady", "ramp", "fit", "try"],
     "grown_up": "Blocks or cups are enough. Knock things down cheerfully. Trying again is the point.",
@@ -305,6 +356,8 @@ _BEGINNER_MAKE = {
             _ask("Which tower will stay up?", ["Wide bottom", "Tiny bottom"], "Wide bottom", "A wide base helps a tower stay steady."),
             _g("Will the Tower Fall?", "make_test_beginner.py", "run_will_the_tower_fall", "🗼"),
             science="A wide bottom helps a tower stay steady.",
+            look_scene={"id": "lesson_tower", "scene": "tower_fall", "picture": "🗼", "question": "Which tower will stay up?"},
+            look_pose="play",
         ),
         _scene(
             "Ramp or Wall?",
@@ -313,6 +366,8 @@ _BEGINNER_MAKE = {
             _ask("Which helps the car roll down?", ["Ramp", "Wall"], "Ramp", "A ramp gives the car a sloping path."),
             _g("Ramp or Wall?", "make_test_beginner.py", "run_ramp_or_wall", "🛝"),
             science="A ramp is a sloping path.",
+            look_scene={"id": "lesson_ramp", "scene": "ramp_or_wall", "picture": "🛝", "question": "Which helps the car roll down?"},
+            look_pose="play",
         ),
         _scene(
             "Fit the Hole",
@@ -321,6 +376,8 @@ _BEGINNER_MAKE = {
             _ask("Which shape fits the round hole?", ["Circle", "Square"], "Circle", "The circle matches the round hole."),
             _g("Fit the Hole", "make_test_beginner.py", "run_fit_the_hole", "⭕"),
             science="The matching shape fits.",
+            look_scene={"id": "lesson_fit", "scene": "fit_the_hole", "picture": "⭕", "question": "Which shape fits the round hole?"},
+            look_pose="play",
         ),
     ],
 }
@@ -334,7 +391,7 @@ _BEGINNER_STEPS = {
     "blurb": "Do steps in order. Spot the missing step. Do it again.",
     "minutes": 6,
     "wave": 2,
-    "playable": False,
+    "playable": True,
     "big_idea": "Steps have an order. Repeat means do it again.",
     "kid_words": ["first", "next", "missing", "repeat"],
     "grown_up": "Getting dressed is the lesson. Socks, then shoes. Cheer when the order is right.",
@@ -347,6 +404,8 @@ _BEGINNER_STEPS = {
             _ask("First socks. What comes next?", ["Shoes", "Hat"], "Shoes", "Socks come before shoes."),
             _g("First Then Next", "follow_the_steps_beginner.py", "run_first_then_next", "🧦"),
             science="Some steps only work in order.",
+            look_scene={"id": "lesson_first_next", "scene": "first_then_next", "picture": "🧦", "question": "First socks. What comes next?"},
+            look_pose="play",
         ),
         _scene(
             "Which Step Is Missing?",
@@ -355,6 +414,8 @@ _BEGINNER_STEPS = {
             _ask("Wash, dry, then what?", ["Put away", "Make muddy"], "Put away", "Put it away after it is dry."),
             _g("Which Step Is Missing?", "follow_the_steps_beginner.py", "run_which_step_is_missing", "🧼"),
             science="A missing step can stop the job.",
+            look_scene={"id": "lesson_missing", "scene": "missing_step", "picture": "🧼", "question": "Wash, dry, then what?"},
+            look_pose="play",
         ),
         _scene(
             "Do It Again",
@@ -363,6 +424,8 @@ _BEGINNER_STEPS = {
             _ask("Repeat means what?", ["Do it again", "Stop forever"], "Do it again", "Repeat means do the step again."),
             _g("Do It Again", "follow_the_steps_beginner.py", "run_do_it_again", "🔁"),
             science="Repeat means do the step again.",
+            look_scene={"id": "lesson_repeat", "scene": "do_it_again", "picture": "🔁", "question": "Repeat means what?"},
+            look_pose="play",
         ),
     ],
 }
@@ -378,7 +441,7 @@ _INTERMEDIATE_MOTION = {
     "blurb": "Compare how far. Spot speeding up. Guess which way it rolls.",
     "minutes": 7,
     "wave": 1,
-    "playable": False,
+    "playable": True,
     "big_idea": "We can compare how far and how fast. Things roll downhill.",
     "kid_words": ["farther", "speeding up", "downhill"],
     "grown_up": "Name the science word after the picture, not before. “Farther” comes last.",
@@ -391,6 +454,8 @@ _INTERMEDIATE_MOTION = {
             _ask("Which car went farther?", ["Red car", "Blue car"], "Red car", "The red car ends farther from start."),
             _g("Who Went Farther?", "motion_intermediate.py", "run_who_went_farther", "🏁"),
             science="Farther means more path from the start.",
+            look_scene={"id": "lesson_farther", "scene": "who_went_farther", "picture": "🏁", "question": "Which car went farther?"},
+            look_pose="play",
         ),
         _scene(
             "Speeding Up?",
@@ -399,6 +464,8 @@ _INTERMEDIATE_MOTION = {
             _ask("The gaps grow. What happens?", ["Speeding up", "Slowing down"], "Speeding up", "Growing gaps show increasing speed."),
             _g("Speeding Up?", "motion_intermediate.py", "run_speeding_up", "🚙"),
             science="Growing gaps mean it is speeding up.",
+            look_scene={"id": "lesson_speeding", "scene": "speeding_up", "picture": "🚙", "question": "The gaps grow. What happens?"},
+            look_pose="play",
         ),
         _scene(
             "Which Way Does It Roll?",
@@ -407,6 +474,8 @@ _INTERMEDIATE_MOTION = {
             _ask("Which way will the ball roll?", ["Downhill", "Uphill"], "Downhill", "Gravity pulls the ball downhill."),
             _g("Which Way Does It Roll?", "motion_intermediate.py", "run_which_way_does_it_roll", "⚽"),
             science="Things roll downhill unless something stops them.",
+            look_scene={"id": "lesson_downhill", "scene": "roll_downhill", "picture": "⚽", "question": "Which way will the ball roll?"},
+            look_pose="play",
         ),
     ],
 }
@@ -1054,11 +1123,13 @@ def validate_catalog() -> None:
     assert set(BUILD_PRIORITY) == set(ids)
     for level in LEVELS:
         assert sum(1 for lesson in LESSONS if lesson["level"] == level) == 7
+    playable_ids = {lesson["id"] for lesson in LESSONS if lesson["playable"]}
+    assert playable_ids == set(BUILD_PRIORITY[:8]), playable_ids
     for lesson in LESSONS:
         assert len(lesson["scenes"]) == 3, lesson["id"]
         for scene in lesson["scenes"]:
             assert scene["name"]["answer"] in scene["name"]["choices"], lesson["id"]
             if "change" in scene:
                 assert scene["change"]["answer"] in scene["change"]["choices"], lesson["id"]
-    playable = [lesson for lesson in LESSONS if lesson["playable"]]
-    assert playable and playable[0]["id"] == "beginner_motion"
+            if lesson["playable"]:
+                assert scene.get("look_scene") and scene["look_scene"].get("scene"), lesson["id"]

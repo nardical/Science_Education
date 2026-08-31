@@ -33,7 +33,7 @@ def render_home():
     st.header("Welcome, scientist!")
     st.write("Pick Games to play, or Lessons to look, name, and then play.")
     for topic in _TOPICS: st.markdown(f"{topic['icon']} **{topic['label']}** — {topic['blurb']}")
-    st.info("21 guided lessons are ready as grown-up scripts. Beginner Motion has the full picture walk.")
+    st.info("Waves 1 and 2 are picture-first: every beginner topic, plus Intermediate Motion.")
 def main():
     st.set_page_config(page_title="Science Playground",page_icon="🔬",layout="wide",initial_sidebar_state="expanded")
     st.markdown("""<style>html,body,[class*="css"]{font-size:1.12rem} div.stButton>button{font-size:1.2rem;padding:.65rem 1rem;border-radius:14px} section[data-testid="stSidebar"]{background:linear-gradient(180deg,#e5f8ff,#f0ffe8,#fff5d9)} .hero{font-size:2.5rem;font-weight:850;color:#17324d}</style>""",unsafe_allow_html=True)

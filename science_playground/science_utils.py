@@ -135,7 +135,7 @@ def _page(inner_css: str, inner_html: str, aria: str, round_no: int, extra_stage
 <body>
 <div class="{stage_cls}" role="img" aria-label="{html.escape(aria)}">
 {inner_html}
-<div class="round">Round {round_no + 1}</div>
+{'' if round_no < 0 else f'<div class="round">Round {round_no + 1}</div>'}
 </div>
 </body></html>"""
 
@@ -875,6 +875,9 @@ _SCENES = {
 
 def show_scene(spec: dict, round_no: int, pose: str | None = None, motion: str | None = None) -> None:
     builder = _SCENES.get(spec.get("scene"))
+    if builder is None:
+        from picture_scenes import EXTRA_SCENES
+        builder = EXTRA_SCENES.get(spec.get("scene"))
     if builder:
         components.html(builder(round_no, spec, pose=pose, motion=motion), height=SCENE_HEIGHT)
         return
