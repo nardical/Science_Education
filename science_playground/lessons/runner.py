@@ -113,6 +113,14 @@ def run_lesson(lesson: Lesson) -> None:
     _progress(lesson, step, len(beats))
     beat = beats[step]
     kind = beat["kind"]
+    showing_overlay = False
+    if kind in ("name", "change"):
+        showing_overlay = bool(
+            st.session_state.get(_key(lesson_id, f"{kind}_{step}_pending"))
+        )
+    if not showing_overlay:
+        # Game overlays inject into the parent page and can survive a rerun.
+        clear_feedback_overlay()
 
     if kind == "look":
         scene = beat["scene"]
