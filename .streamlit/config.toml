@@ -1,0 +1,4 @@
+# Poll works on OneDrive/network folders, where the default watcher often misses edits.
+[server]
+port = 8501
+fileWatcherType = "poll"

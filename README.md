@@ -9,7 +9,7 @@ python -m pip install -r requirements.txt
 streamlit run science_playground/app.py
 ```
 
-Or double-click `start-game.bat` on Windows.
+Or double-click `start-game.bat` on Windows. That script stops any leftover game still using port 8501, then starts a fresh one. If a browser tab is already on http://localhost:8501, press Ctrl+Shift+R or open a new tab.
 
 ## What is included
 
