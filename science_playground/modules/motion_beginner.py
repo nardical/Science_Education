@@ -101,18 +101,125 @@ def _push_pull_trials() -> tuple[dict[str, str | list[str]], ...]:
     return tuple(trials)
 
 
+# Cycle in order, then wrap. Question alternates faster / slower by index.
+FAST_SLOW_PAIRS: tuple[dict[str, str], ...] = (
+    {
+        "fast": "Race car",
+        "slow": "Snail",
+        "fast_kind": "car",
+        "slow_kind": "snail",
+        "fast_pic": "🏎️",
+        "slow_pic": "🐌",
+        "kid_tip": "The race car zooms. The snail creeps.",
+        "tip": "The race car is faster than the snail.",
+    },
+    {
+        "fast": "Cheetah",
+        "slow": "Turtle",
+        "fast_pic": "🐆",
+        "slow_pic": "🐢",
+        "kid_tip": "The cheetah zooms. The turtle creeps.",
+        "tip": "A cheetah is faster than a turtle.",
+    },
+    {
+        "fast": "Rocket",
+        "slow": "Balloon",
+        "fast_kind": "rocket",
+        "slow_kind": "balloon",
+        "fast_pic": "🚀",
+        "slow_pic": "🎈",
+        "kid_tip": "The rocket zooms. The balloon drifts.",
+        "tip": "A rocket is faster than a balloon.",
+    },
+    {
+        "fast": "Bike",
+        "slow": "Walker",
+        "fast_pic": "🚲",
+        "slow_pic": "🚶",
+        "kid_tip": "The bike zooms. The walker steps slowly.",
+        "tip": "A bike is faster than a walker.",
+    },
+    {
+        "fast": "Train",
+        "slow": "Caterpillar",
+        "fast_pic": "🚂",
+        "slow_pic": "🐛",
+        "kid_tip": "The train zooms. The caterpillar creeps.",
+        "tip": "A train is faster than a caterpillar.",
+    },
+    {
+        "fast": "Airplane",
+        "slow": "Cloud",
+        "fast_pic": "✈️",
+        "slow_pic": "☁️",
+        "kid_tip": "The airplane zooms. The cloud drifts.",
+        "tip": "An airplane is faster than a cloud.",
+    },
+    {
+        "fast": "Horse",
+        "slow": "Sloth",
+        "fast_pic": "🐴",
+        "slow_pic": "🦥",
+        "kid_tip": "The horse gallops. The sloth creeps.",
+        "tip": "A horse is faster than a sloth.",
+    },
+    {
+        "fast": "Speedboat",
+        "slow": "Duck",
+        "fast_kind": "boat",
+        "slow_pic": "🦆",
+        "kid_tip": "The speedboat zooms. The duck paddles slowly.",
+        "tip": "A speedboat is faster than a duck.",
+    },
+    {
+        "fast": "Skateboard",
+        "slow": "Ant",
+        "fast_pic": "🛹",
+        "slow_pic": "🐜",
+        "kid_tip": "The skateboard zooms. The ant creeps.",
+        "tip": "A skateboard is faster than an ant.",
+    },
+    {
+        "fast": "Motorcycle",
+        "slow": "Tractor",
+        "fast_pic": "🏍️",
+        "slow_pic": "🚜",
+        "kid_tip": "The motorcycle zooms. The tractor rolls slowly.",
+        "tip": "A motorcycle is faster than a tractor.",
+    },
+)
+
+
+def _fast_slow_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
+    trials: list[dict[str, str | list[str] | bool]] = []
+    for i, pair in enumerate(FAST_SLOW_PAIRS):
+        ask_faster = i % 2 == 0
+        fast = pair["fast"]
+        slow = pair["slow"]
+        trial: dict[str, str | list[str] | bool] = dict(pair)
+        trial["question"] = "Which one is faster?" if ask_faster else "Which one is slower?"
+        trial["choices"] = [fast, slow]
+        trial["answer"] = fast if ask_faster else slow
+        trial["fast_top"] = i % 2 == 1
+        trial["picture"] = pair.get("fast_pic") or "🏎️"
+        trials.append(trial)
+    return tuple(trials)
+
+
 def run_fast_or_slow() -> None:
     run_game({
         'id': 'motion_beginner_fast_or_slow',
         'title': 'Fast or Slow',
-        'tagline': 'Which one moves fast?',
-        'question': 'Which one moves fast?',
+        'tagline': 'Which one is faster? Which one is slower?',
+        'question': 'Which one is faster?',
         'choices': ['Snail', 'Race car'],
         'answer': 'Race car',
         'picture': '🏎️',
         'scene': 'fast_slow',
-        'kid_tip': 'The car zooms. The snail creeps.',
-        'tip': 'The race car moves fast.',
+        'animate_mode': 'once',
+        'trials': _fast_slow_trials(),
+        'kid_tip': 'The race car zooms. The snail creeps.',
+        'tip': 'The race car is faster than the snail.',
     })
 
 # Cycle green → yellow → red, then wrap.
