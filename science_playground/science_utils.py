@@ -140,37 +140,95 @@ def _page(inner_css: str, inner_html: str, aria: str, round_no: int, extra_stage
 </body></html>"""
 
 
+def _speed_drawing(kind: str, pic: str) -> str:
+    if kind == "car":
+        return (
+            '<div class="car-body"><div class="car-win"></div>'
+            '<div class="wheel" style="left:14px"></div>'
+            '<div class="wheel" style="right:14px"></div></div>'
+        )
+    if kind == "snail":
+        return (
+            '<div class="snail-draw"><div class="eye"></div>'
+            '<div class="eye" style="left:16px"></div>'
+            '<div class="slug"></div><div class="shell"></div></div>'
+        )
+    if kind == "rocket":
+        return '<div class="rocket"><i></i></div>'
+    if kind == "balloon":
+        return '<div class="balloon"><i></i><b></b></div>'
+    if kind == "boat":
+        return '<div class="boat-draw"><i class="hull"></i><i class="sail"></i></div>'
+    return f'<div class="pic">{html.escape(pic or "•")}</div>'
+
+
 def _scene_fast_slow(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
+    pose = str(kwargs.get("pose") or "loop")
+    if pose not in ("start", "play", "end", "loop"):
+        pose = "loop"
+    fast = str(spec.get("fast") or "Race car")
+    slow = str(spec.get("slow") or "Snail")
+    if "fast" in spec:
+        fast_kind = str(spec.get("fast_kind") or "")
+        slow_kind = str(spec.get("slow_kind") or "")
+    else:
+        fast_kind = str(spec.get("fast_kind") or "car")
+        slow_kind = str(spec.get("slow_kind") or "snail")
+    fast_pic = str(spec.get("fast_pic") or "🏎️")
+    slow_pic = str(spec.get("slow_pic") or "🐌")
+    fast_top = spec.get("fast_top", True)
+    if isinstance(fast_top, str):
+        fast_top = fast_top.lower() not in ("0", "false", "no")
+    top_name, top_draw, top_cls = (fast, _speed_drawing(fast_kind, fast_pic), "fast")
+    bot_name, bot_draw, bot_cls = (slow, _speed_drawing(slow_kind, slow_pic), "slow")
+    if not fast_top:
+        top_name, top_draw, top_cls, bot_name, bot_draw, bot_cls = (
+            bot_name, bot_draw, bot_cls, top_name, top_draw, top_cls
+        )
+    top_mark = "FAST" if top_cls == "fast" else "SLOW"
+    bot_mark = "FAST" if bot_cls == "fast" else "SLOW"
+    top_color = "#c1121f" if top_cls == "fast" else "#2d6a4f"
+    bot_color = "#c1121f" if bot_cls == "fast" else "#2d6a4f"
     css = """
     .stage{background:linear-gradient(180deg,#caf0f8 0%,#90e0ef 42%,#52b69a 42%,#52b69a 48%,#d8f3dc 48%,#d8f3dc 88%,#95d5b2 88%)}
     .lane{position:absolute;left:0;right:0;height:6px;background:repeating-linear-gradient(90deg,#fff 0 28px,transparent 28px 48px);opacity:.85}
-    .car{position:absolute;top:38px;width:120px;height:48px;animation:zoom 1.5s linear infinite}
-    .car-body{width:118px;height:36px;background:#e63946;border-radius:16px 22px 10px 10px;position:relative;box-shadow:0 5px 0 #9d0208}
+    .mover{position:absolute;left:16px;width:120px;height:58px}
+    .top{top:38px}.bot{top:168px}
+    .pose-start .mover{left:16px}
+    .pose-play .fast{animation:dashFast 1.5s linear forwards}
+    .pose-loop .fast{animation:dashFast 1.5s linear infinite}
+    .pose-play .slow{animation:dashSlow 5.5s linear forwards}
+    .pose-loop .slow{animation:dashSlow 7s linear infinite}
+    .pose-end .fast{left:72%}.pose-end .slow{left:18%}
+    @keyframes dashFast{from{left:16px}to{left:72%}}
+    @keyframes dashSlow{from{left:16px}to{left:18%}}
+    .car-body{width:118px;height:36px;background:#e63946;border-radius:16px 22px 10px 10px;position:relative;box-shadow:0 5px 0 #9d0208;margin-top:10px}
     .car-win{position:absolute;top:-16px;left:36px;width:48px;height:20px;background:#8ecae6;border-radius:10px 12px 0 0}
     .wheel{position:absolute;bottom:-12px;width:22px;height:22px;background:#1d3557;border-radius:50%;border:3px solid #fff}
-    .snail{position:absolute;top:168px;width:92px;height:58px;animation:creep 7s linear infinite}
+    .snail-draw{position:relative;width:92px;height:58px}
     .shell{position:absolute;left:34px;top:0;width:50px;height:50px;border-radius:50%;background:conic-gradient(#b08968,#ddb892,#7f5539,#b08968);border:5px solid #7f5539}
     .slug{position:absolute;left:0;bottom:4px;width:70px;height:20px;background:#6a994e;border-radius:20px}
     .eye{position:absolute;left:8px;top:18px;width:4px;height:18px;background:#386641;border-radius:4px}
-    @keyframes zoom{from{left:16px}to{left:72%}}
-    @keyframes creep{from{left:16px}to{left:18%}}
+    .rocket{width:0;height:0;margin-top:8px;border-left:78px solid #e63946;border-top:18px solid transparent;border-bottom:18px solid transparent;filter:drop-shadow(-10px 0 0 #ffd166)}
+    .balloon{width:48px;height:58px;margin:0 auto;background:radial-gradient(circle at 30% 28%,#fff,#ef476f);border-radius:50% 50% 50% 50%;position:relative}
+    .balloon i{position:absolute;bottom:-10px;left:22px;width:4px;height:18px;background:#6c584c}
+    .balloon b{position:absolute;bottom:-16px;left:16px;width:16px;height:10px;border:3px solid #6c584c;border-top:0;border-radius:0 0 10px 10px}
+    .boat-draw{position:relative;width:110px;height:52px;margin-top:6px}
+    .boat-draw .hull{position:absolute;left:0;bottom:0;width:100px;height:22px;background:#bc6c25;clip-path:polygon(4% 0,96% 0,86% 100%,14% 100%)}
+    .boat-draw .sail{position:absolute;left:48px;top:0;border-left:32px solid #f8f9fa;border-top:8px solid transparent;border-bottom:20px solid transparent}
+    .pic{font-size:64px;line-height:1;text-align:center}
     """
-    body = """
-    <div class="tag" style="top:8px;left:12px;font-size:26px;color:#c1121f">RACE CAR — FAST</div>
-    <div class="tag" style="top:138px;left:12px;font-size:26px;color:#2d6a4f">SNAIL — SLOW</div>
+    body = f"""
+    <div class="tag" style="top:8px;left:12px;font-size:22px;color:{top_color}">{html.escape(top_name.upper())} — {top_mark}</div>
+    <div class="tag" style="top:138px;left:12px;font-size:22px;color:{bot_color}">{html.escape(bot_name.upper())} — {bot_mark}</div>
     <div class="lane" style="top:108px"></div>
     <div class="lane" style="top:248px"></div>
-    <div class="car">
-      <div class="car-body"><div class="car-win"></div>
-        <div class="wheel" style="left:14px"></div><div class="wheel" style="right:14px"></div>
-      </div>
-    </div>
-    <div class="snail">
-      <div class="eye"></div><div class="eye" style="left:16px"></div>
-      <div class="slug"></div><div class="shell"></div>
-    </div>
+    <div class="mover top {top_cls}">{top_draw}</div>
+    <div class="mover bot {bot_cls}">{bot_draw}</div>
     """
-    return _page(css, body, "A race car zooms. A snail creeps.", round_no)
+    aria = f"{fast} is fast. {slow} is slow."
+    return _page(css, body, aria, round_no, extra_stage=f"pose-{pose}")
 
 
 def _scene_stop_go(round_no: int, spec: dict | None = None, **kwargs) -> str:
