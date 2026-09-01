@@ -186,10 +186,6 @@ def _scene_fast_slow(round_no: int, spec: dict | None = None, **kwargs) -> str:
         top_name, top_draw, top_cls, bot_name, bot_draw, bot_cls = (
             bot_name, bot_draw, bot_cls, top_name, top_draw, top_cls
         )
-    top_mark = "FAST" if top_cls == "fast" else "SLOW"
-    bot_mark = "FAST" if bot_cls == "fast" else "SLOW"
-    top_color = "#c1121f" if top_cls == "fast" else "#2d6a4f"
-    bot_color = "#c1121f" if bot_cls == "fast" else "#2d6a4f"
     css = """
     .stage{background:linear-gradient(180deg,#caf0f8 0%,#90e0ef 42%,#52b69a 42%,#52b69a 48%,#d8f3dc 48%,#d8f3dc 88%,#95d5b2 88%)}
     .lane{position:absolute;left:0;right:0;height:6px;background:repeating-linear-gradient(90deg,#fff 0 28px,transparent 28px 48px);opacity:.85}
@@ -220,8 +216,8 @@ def _scene_fast_slow(round_no: int, spec: dict | None = None, **kwargs) -> str:
     .pic{font-size:64px;line-height:1;text-align:center}
     """
     body = f"""
-    <div class="tag" style="top:8px;left:12px;font-size:22px;color:{top_color}">{html.escape(top_name.upper())} — {top_mark}</div>
-    <div class="tag" style="top:138px;left:12px;font-size:22px;color:{bot_color}">{html.escape(bot_name.upper())} — {bot_mark}</div>
+    <div class="tag" style="top:8px;left:12px;font-size:22px;color:#1d3557">{html.escape(top_name)}</div>
+    <div class="tag" style="top:138px;left:12px;font-size:22px;color:#1d3557">{html.escape(bot_name)}</div>
     <div class="lane" style="top:108px"></div>
     <div class="lane" style="top:248px"></div>
     <div class="mover top {top_cls}">{top_draw}</div>
