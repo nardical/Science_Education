@@ -4,19 +4,22 @@ from __future__ import annotations
 import html
 
 
-def _page(inner_css: str, inner_html: str, aria: str, extra_stage: str = "") -> str:
+def _page(inner_css: str, inner_html: str, aria: str, extra_stage: str = "", round_no: int | None = None) -> str:
     stage_cls = "stage " + extra_stage if extra_stage else "stage"
+    round_html = "" if round_no is None or round_no < 0 else f'<div class="round">Round {round_no + 1}</div>'
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
 <style>
   html,body{{margin:0;padding:0;overflow:hidden;font-family:system-ui,Segoe UI,sans-serif}}
   .stage{{position:relative;width:100%;height:320px;border-radius:24px;overflow:hidden;border:3px solid #79b9d1}}
   .tag{{position:absolute;font-weight:800;letter-spacing:.04em;text-shadow:0 1px 0 #fff;z-index:2}}
+  .round{{position:absolute;right:14px;bottom:10px;font-weight:700;color:#345;font-size:16px;z-index:2}}
   {inner_css}
 </style></head>
 <body>
 <div class="{stage_cls}" role="img" aria-label="{html.escape(aria)}">
 {inner_html}
+{round_html}
 </div>
 </body></html>"""
 
@@ -199,81 +202,213 @@ def _scene_roll_downhill(round_no: int, spec: dict | None = None, **kwargs) -> s
     return _page(css, body, "A ball rolls downhill.", f"pose-{pose}")
 
 
+def _truthy(value: object, default: bool = True) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, str):
+        return value.lower() not in ("0", "false", "no")
+    return bool(value)
+
+
+def _light_panel(kind: str) -> str:
+    if kind == "closet":
+        return '<div class="door"></div><div class="knob"></div>'
+    if kind == "cave":
+        return '<div class="cave"></div>'
+    if kind == "lamp":
+        return '<div class="lamp"></div><div class="glow"></div>'
+    if kind == "window":
+        return '<div class="window"></div>'
+    if kind == "tunnel":
+        return '<div class="tunnel"></div>'
+    if kind == "lighthouse":
+        return '<div class="tower"></div><div class="beam"></div>'
+    if kind == "basement":
+        return '<div class="stairs"></div>'
+    if kind == "fire":
+        return '<div class="fire"></div>'
+    if kind == "woods":
+        return '<div class="tree a"></div><div class="tree b"></div>'
+    if kind == "flashlight":
+        return '<div class="torch"></div><div class="cone"></div>'
+    if kind == "bed":
+        return '<div class="bed"></div>'
+    if kind == "beach":
+        return '<div class="sun-ball"></div><div class="wave-line"></div>'
+    if kind == "theater":
+        return '<div class="screen"></div>'
+    if kind == "candles":
+        return '<div class="cake"></div>'
+    if kind == "box":
+        return '<div class="lid-box"></div>'
+    if kind == "street":
+        return '<div class="pole"></div><div class="sun-ball small"></div>'
+    if kind == "attic":
+        return '<div class="rafter"></div>'
+    if kind == "park":
+        return '<div class="sun-ball"></div><div class="tree a"></div>'
+    if kind == "midnight":
+        return '<div class="moon"></div>'
+    return '<div class="sun-ball"></div>'
+
+
 def _scene_light_or_dark(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
+    pose = _pose(kwargs)
+    light = str(spec.get("light") or "Sunny yard")
+    dark = str(spec.get("dark") or "Closed closet")
+    light_kind = str(spec.get("light_kind") or "yard")
+    dark_kind = str(spec.get("dark_kind") or "closet")
+    light_left = _truthy(spec.get("light_left", True))
+    left_name, left_kind, left_cls = light, light_kind, "sun"
+    right_name, right_kind, right_cls = dark, dark_kind, "dark"
+    if not light_left:
+        left_name, left_kind, left_cls, right_name, right_kind, right_cls = (
+            right_name, right_kind, right_cls, left_name, left_kind, left_cls
+        )
     css = """
     .stage{background:#fff}
     .half{position:absolute;top:0;bottom:0;width:50%}
-    .sun{left:0;background:linear-gradient(180deg,#fff3bf,#90e0ef 55%,#95d5b2 55%)}
-    .dark{right:0;background:linear-gradient(180deg,#212529,#343a40 70%,#1d3557 70%)}
-    .sun-ball{position:absolute;left:12%;top:18px;width:64px;height:64px;border-radius:50%;background:#ffd166;box-shadow:0 0 24px #ffd166}
-    .door{position:absolute;right:18%;top:70px;width:90px;height:160px;background:#6c584c;border-radius:8px 8px 0 0}
-    .knob{position:absolute;right:24%;top:150px;width:12px;height:12px;border-radius:50%;background:#ffd166}
+    .sun{background:linear-gradient(180deg,#fff3bf,#90e0ef 55%,#95d5b2 55%)}
+    .dark{background:linear-gradient(180deg,#212529,#343a40 70%,#1d3557 70%)}
+    .name{position:absolute;top:12px;left:8%;right:8%;text-align:center;font-size:22px;font-weight:800;z-index:3}
+    .sun .name{color:#9c6644}.dark .name{color:#fff;text-shadow:none}
+    .sun-ball{position:absolute;left:18%;top:58px;width:64px;height:64px;border-radius:50%;background:#ffd166;box-shadow:0 0 24px #ffd166}
+    .sun-ball.small{width:28px;height:28px;left:62%;top:46px}
+    .door{position:absolute;left:28%;top:90px;width:90px;height:160px;background:#6c584c;border-radius:8px 8px 0 0}
+    .knob{position:absolute;left:72%;top:168px;width:12px;height:12px;border-radius:50%;background:#ffd166}
+    .cave{position:absolute;left:18%;bottom:20px;width:64%;height:160px;background:#111;border-radius:80px 80px 0 0}
+    .lamp{position:absolute;left:42%;top:70px;width:16px;height:70px;background:#6c584c}
+    .glow{position:absolute;left:28%;top:48px;width:70px;height:40px;background:#ffd166;border-radius:50%;box-shadow:0 0 28px #ffd166}
+    .window{position:absolute;left:22%;top:70px;width:56%;height:110px;background:#90e0ef;border:8px solid #8d6e63;box-shadow:inset 0 0 0 6px #fff}
+    .tunnel{position:absolute;left:20%;top:80px;width:60%;height:150px;background:#111;border-radius:50%}
+    .tower{position:absolute;left:38%;bottom:20px;width:36px;height:150px;background:#dee2e6}
+    .beam{position:absolute;left:52%;top:70px;border-top:24px solid transparent;border-bottom:24px solid transparent;border-left:90px solid rgba(255,209,102,.7)}
+    .stairs{position:absolute;left:22%;bottom:20px;width:56%;height:14px;background:#495057;box-shadow:0 -22px 0 #343a40,0 -44px 0 #495057,0 -66px 0 #343a40}
+    .fire{position:absolute;left:38%;bottom:36px;width:40px;height:54px;background:radial-gradient(circle at 50% 70%,#ffd166,#e63946);border-radius:50% 50% 40% 40%;box-shadow:0 0 20px #e63946}
+    .tree{position:absolute;bottom:20px;width:0;height:0;border-left:28px solid transparent;border-right:28px solid transparent;border-bottom:90px solid #1b4332}
+    .tree.a{left:16%}.tree.b{left:48%}
+    .torch{position:absolute;left:18%;bottom:70px;width:54px;height:16px;background:#6c757d;border-radius:8px}
+    .cone{position:absolute;left:68px;bottom:40px;border-top:40px solid transparent;border-bottom:40px solid transparent;border-left:110px solid rgba(255,241,199,.75)}
+    .bed{position:absolute;left:14%;bottom:24px;width:72%;height:50px;background:#3d405b;border-radius:8px}
+    .wave-line{position:absolute;left:0;right:0;bottom:36px;height:16px;background:#48cae4}
+    .screen{position:absolute;left:16%;top:70px;width:68%;height:90px;background:#111;border:6px solid #6c757d}
+    .cake{position:absolute;left:30%;bottom:40px;width:70px;height:40px;background:#ffafcc;border-radius:8px;box-shadow:18px -22px 0 -22px #ffd166,36px -22px 0 -22px #ffd166,52px -22px 0 -22px #ffd166}
+    .lid-box{position:absolute;left:24%;top:110px;width:52%;height:80px;background:#bc6c25;border-radius:8px}
+    .pole{position:absolute;left:46%;bottom:20px;width:10px;height:140px;background:#6c757d}
+    .rafter{position:absolute;left:8%;top:70px;width:84%;height:10px;background:#6c584c;transform:rotate(-8deg)}
+    .moon{position:absolute;left:22%;top:50px;width:50px;height:50px;border-radius:50%;background:#f8f9fa;box-shadow:-12px 0 0 #212529}
     """
-    body = """
-    <div class="half sun"></div><div class="half dark"></div>
-    <div class="sun-ball"></div><div class="door"></div><div class="knob"></div>
-    <div class="tag" style="top:12px;left:8%;font-size:24px;color:#9c6644">SUNNY YARD</div>
-    <div class="tag" style="top:12px;right:8%;font-size:24px;color:#fff">CLOSED CLOSET</div>
+    body = f"""
+    <div class="half {left_cls}" style="left:0">
+      <div class="name">{html.escape(left_name)}</div>
+      {_light_panel(left_kind)}
+    </div>
+    <div class="half {right_cls}" style="left:50%">
+      <div class="name">{html.escape(right_name)}</div>
+      {_light_panel(right_kind)}
+    </div>
     """
-    return _page(css, body, "A sunny yard is light. A closed closet is dark.")
+    aria = f"{light} is light. {dark} is dark."
+    return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
+
+
+def _sound_icon(kind: str, fallback: str) -> str:
+    icons = {
+        "whisper": "🤫", "drum": "🥁", "rain": "🌧️", "thunder": "⚡",
+        "pages": "📖", "cymbal": "💥", "purr": "🐱", "bark": "🐶",
+        "tick": "🕐", "alarm": "⏰", "rustle": "🍃", "crash": "💥",
+        "drip": "💧", "gong": "🔔", "hum": "😮", "trumpet": "🎺",
+        "lullaby": "🎵", "siren": "🚒", "squeak": "🐭", "roar": "🦁",
+    }
+    return icons.get(kind, fallback)
 
 
 def _scene_loud_or_quiet(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    loud = str(spec.get("loud") or "Drum")
+    quiet = str(spec.get("quiet") or "Whisper")
+    loud_kind = str(spec.get("loud_kind") or "drum")
+    quiet_kind = str(spec.get("quiet_kind") or "whisper")
+    loud_left = _truthy(spec.get("loud_left"), False)
+    left_name, left_kind, left_cls = quiet, quiet_kind, "tiny"
+    right_name, right_kind, right_cls = loud, loud_kind, "big"
+    if loud_left:
+        left_name, left_kind, left_cls, right_name, right_kind, right_cls = (
+            right_name, right_kind, right_cls, left_name, left_kind, left_cls
+        )
     css = """
     .stage{background:linear-gradient(180deg,#f3e8ff,#fff)}
     .col{position:absolute;top:20px;bottom:20px;width:46%}
     .col.left{left:4%}.col.right{right:4%}
-    .drum{position:absolute;left:50%;bottom:36px;width:90px;height:70px;margin-left:-45px;background:#e63946;border-radius:12px}
-    .drum:before{content:"";position:absolute;left:8px;right:8px;top:-16px;height:28px;background:#fff;border:4px solid #c1121f;border-radius:50%}
-    .mouth{position:absolute;left:50%;bottom:70px;width:70px;height:70px;margin-left:-35px;background:#f4a261;border-radius:50%}
-    .ring{position:absolute;left:50%;border:5px solid #6a4c93;border-radius:50%;opacity:.35}
-    .pose-play .big,.pose-end .big{animation:pulseBig 1.4s ease-out infinite}
+    .name{text-align:center;font-size:22px;font-weight:800;color:#1d3557}
+    .pic{font-size:72px;line-height:1;text-align:center;margin-top:28px}
+    .ring{position:absolute;left:50%;bottom:70px;border:5px solid #6a4c93;border-radius:50%;opacity:.35}
+    .pose-play .big,.pose-end .big{animation:pulseBig 1.2s ease-out infinite}
     .pose-play .tiny,.pose-end .tiny{animation:pulseTiny 1.8s ease-out infinite}
-    @keyframes pulseBig{from{width:40px;height:40px;margin:-20px 0 0 -20px;opacity:.6}to{width:180px;height:180px;margin:-90px 0 0 -90px;opacity:0}}
-    @keyframes pulseTiny{from{width:16px;height:16px;margin:-8px 0 0 -8px;opacity:.5}to{width:50px;height:50px;margin:-25px 0 0 -25px;opacity:0}}
+    @keyframes pulseBig{from{width:40px;height:40px;margin:-20px 0 0 -20px;opacity:.65}to{width:190px;height:190px;margin:-95px 0 0 -95px;opacity:0}}
+    @keyframes pulseTiny{from{width:14px;height:14px;margin:-7px 0 0 -7px;opacity:.45}to{width:46px;height:46px;margin:-23px 0 0 -23px;opacity:0}}
     """
-    body = """
+    body = f"""
     <div class="col left">
-      <div class="tag" style="top:0;left:8%;font-size:22px;color:#6a4c93">WHISPER</div>
-      <div class="mouth"></div>
-      <div class="ring tiny" style="bottom:90px"></div>
+      <div class="name">{html.escape(left_name)}</div>
+      <div class="pic">{_sound_icon(left_kind, "🔈")}</div>
+      <div class="ring {left_cls}"></div>
     </div>
     <div class="col right">
-      <div class="tag" style="top:0;right:8%;font-size:22px;color:#c1121f">DRUM — LOUD</div>
-      <div class="drum"></div>
-      <div class="ring big" style="bottom:70px"></div>
+      <div class="name">{html.escape(right_name)}</div>
+      <div class="pic">{_sound_icon(right_kind, "🔊")}</div>
+      <div class="ring {right_cls}"></div>
     </div>
     """
-    return _page(css, body, "A whisper is quiet. A drum is loud.", f"pose-{pose}")
+    aria = f"{quiet} is quiet. {loud} is loud."
+    return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
 
 
 def _scene_high_or_low(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    high = str(spec.get("high") or "Tiny bell")
+    low = str(spec.get("low") or "Big drum")
+    high_pic = str(spec.get("high_pic") or "🔔")
+    low_pic = str(spec.get("low_pic") or "🥁")
+    high_left = _truthy(spec.get("high_left", True))
+    left_name, left_pic, left_cls = high, high_pic, "fast"
+    right_name, right_pic, right_cls = low, low_pic, "slow"
+    if not high_left:
+        left_name, left_pic, left_cls, right_name, right_pic, right_cls = (
+            right_name, right_pic, right_cls, left_name, left_pic, left_cls
+        )
     css = """
     .stage{background:linear-gradient(180deg,#e8f5e9,#fff1c7)}
     .col{position:absolute;top:0;bottom:0;width:50%}
     .col.left{left:0}.col.right{right:0}
-    .wave{position:absolute;left:8%;right:8%;top:150px;height:80px}
-    .pose-play .fast path,.pose-end .fast path{animation:wiggle 0.35s linear infinite}
-    .pose-play .slow path,.pose-end .slow path{animation:wiggle 1.4s linear infinite}
+    .name{position:absolute;top:14px;left:8%;right:8%;text-align:center;font-size:22px;font-weight:800;color:#1d3557}
+    .pic{position:absolute;top:58px;left:0;right:0;text-align:center;font-size:64px;line-height:1}
+    .wave{position:absolute;left:8%;right:8%;top:170px;height:80px}
+    .pose-play .fast path,.pose-end .fast path{animation:wiggle 0.32s linear infinite}
+    .pose-play .slow path,.pose-end .slow path{animation:wiggle 1.5s linear infinite}
     @keyframes wiggle{from{transform:translateX(0)}to{transform:translateX(-24px)}}
     """
-    body = """
-    <div class="tag" style="top:14px;left:8%;font-size:22px;color:#2a9d8f">TINY BELL — HIGH</div>
-    <div class="tag" style="top:14px;right:8%;font-size:22px;color:#1d3557">BIG DRUM — LOW</div>
+    body = f"""
     <div class="col left">
-      <svg class="wave fast" viewBox="0 0 200 80">
-        <path d="M0 40 q12 -28 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0" fill="none" stroke="#2a9d8f" stroke-width="8"/>
+      <div class="name">{html.escape(left_name)}</div>
+      <div class="pic">{html.escape(left_pic)}</div>
+      <svg class="wave {left_cls}" viewBox="0 0 200 80">
+        <path d="{'M0 40 q12 -28 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0' if left_cls=='fast' else 'M0 40 q40 -18 80 0 t80 0 t80 0'}" fill="none" stroke="#2a9d8f" stroke-width="8"/>
       </svg>
     </div>
     <div class="col right">
-      <svg class="wave slow" viewBox="0 0 200 80">
-        <path d="M0 40 q40 -18 80 0 t80 0 t80 0" fill="none" stroke="#1d3557" stroke-width="10"/>
+      <div class="name">{html.escape(right_name)}</div>
+      <div class="pic">{html.escape(right_pic)}</div>
+      <svg class="wave {right_cls}" viewBox="0 0 200 80">
+        <path d="{'M0 40 q12 -28 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0' if right_cls=='fast' else 'M0 40 q40 -18 80 0 t80 0 t80 0'}" fill="none" stroke="#1d3557" stroke-width="10"/>
       </svg>
     </div>
     """
-    return _page(css, body, "A tiny bell makes a high sound. A big drum makes a low sound.", f"pose-{pose}")
+    aria = f"{high} is high. {low} is low."
+    return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
 
 
 def _scene_solid_or_splash(round_no: int, spec: dict | None = None, **kwargs) -> str:

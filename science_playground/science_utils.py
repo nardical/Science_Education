@@ -22,6 +22,9 @@ _BESPOKE_GAMES = {
     "motion_beginner_push_or_pull",
     "forces_stuff_beginner_heavy_or_light",
     "forces_stuff_beginner_sink_or_float",
+    "light_sound_beginner_light_or_dark",
+    "light_sound_beginner_loud_or_quiet",
+    "light_sound_beginner_high_or_low",
 }
 
 _DISCOVERY_DECKS = {
@@ -927,6 +930,27 @@ _SCENES = {
 }
 
 
+def play_kid_audio(spec: dict, when: str, token: str) -> None:
+    """Play a generated clip once per token. Used for Loud or Quiet and High or Low."""
+    flag = f"_hear_{token}_{when}"
+    if st.session_state.get(flag):
+        return
+    from kid_sounds import render_pair, render_sound
+    if when == "pair" and spec.get("hear_left") and spec.get("hear_right"):
+        st.session_state[flag] = True
+        st.caption("Listen")
+        st.audio(
+            render_pair(str(spec["hear_left"]), str(spec["hear_right"])),
+            format="audio/wav",
+            autoplay=True,
+        )
+        return
+    if when == "answer" and spec.get("answer_sound"):
+        st.session_state[flag] = True
+        st.caption("Listen to the matching sound")
+        st.audio(render_sound(str(spec["answer_sound"])), format="audio/wav", autoplay=True)
+
+
 def show_scene(spec: dict, round_no: int, pose: str | None = None, motion: str | None = None) -> None:
     builder = _SCENES.get(spec.get("scene"))
     if builder is None:
@@ -934,6 +958,8 @@ def show_scene(spec: dict, round_no: int, pose: str | None = None, motion: str |
         builder = EXTRA_SCENES.get(spec.get("scene"))
     if builder:
         components.html(builder(round_no, spec, pose=pose, motion=motion), height=SCENE_HEIGHT)
+        if pose == "play":
+            play_kid_audio(spec, "pair", f"{spec.get('id')}_{round_no}_pair")
         return
     st.markdown(scene_svg(spec["picture"], round_no), unsafe_allow_html=True)
 
@@ -985,6 +1011,7 @@ def run_game(spec: dict) -> None:
             show_scene(spec, round_no, pose="end", motion=str(spec["answer"]).lower())
         else:
             show_scene(spec, round_no)
+        play_kid_audio(spec, "answer", f"{key}_{round_no}_ans")
         show_feedback_overlay(pending["message"], pending["correct"], pending["detail"])
         time.sleep(FEEDBACK_SECONDS)
         st.session_state[key + "_pending"] = None
