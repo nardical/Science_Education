@@ -22,6 +22,7 @@ _BESPOKE_GAMES = {
     "motion_beginner_push_or_pull",
     "forces_stuff_beginner_heavy_or_light",
     "forces_stuff_beginner_sink_or_float",
+    "forces_stuff_beginner_sticky_or_slippy",
 }
 
 _DISCOVERY_DECKS = {
@@ -807,26 +808,79 @@ def _scene_sink_float(round_no: int, spec: dict | None = None, **kwargs) -> str:
     return _page(css, body, aria, round_no, extra_stage=f"pose-{pose}")
 
 
+def _floor_fill(kind: str) -> str:
+    fills = {
+        "rug": "repeating-linear-gradient(90deg,#bc4749 0 16px,#f2e8cf 16px 26px)",
+        "ice": "linear-gradient(180deg,#e0fbfc,#90e0ef 55%,#48cae4)",
+        "sandpaper": "repeating-radial-gradient(circle at 4px 6px,#d4a373 0 3px,#bc6c25 3px 7px)",
+        "tile": "linear-gradient(180deg,#f8f9fa,#dee2e6),repeating-linear-gradient(90deg,#adb5bd 0 2px,transparent 2px 46px)",
+        "grass": "repeating-linear-gradient(110deg,#52b788 0 8px,#2d6a4f 8px 14px)",
+        "slide": "linear-gradient(180deg,#ffd166,#f4a261)",
+        "carpet": "repeating-linear-gradient(0deg,#7b2cbf 0 10px,#9d4edd 10px 18px)",
+        "soap": "linear-gradient(180deg,#caf0f8,#80ed99 40%,#48cae4)",
+        "dirt": "repeating-linear-gradient(45deg,#9c6644 0 12px,#7f5539 12px 20px)",
+        "rubber": "repeating-radial-gradient(circle at 8px 8px,#343a40 0 5px,#212529 5px 14px)",
+        "marble": "linear-gradient(120deg,#f8f9fa 0 40%,#ced4da 40% 46%,#fff 46% 70%,#adb5bd 70% 74%,#f1faee)",
+        "velcro": "repeating-linear-gradient(90deg,#6c584c 0 6px,#a98467 6px 10px)",
+        "peel": "linear-gradient(180deg,#ffd166,#e9c46a 70%,#f4a261)",
+        "gravel": "repeating-radial-gradient(circle at 10px 12px,#6c757d 0 6px,#adb5bd 6px 13px)",
+        "wetrock": "linear-gradient(180deg,#8d99ae,#495057 60%,#6c757d)",
+        "towel": "repeating-linear-gradient(90deg,#90e0ef 0 10px,#caf0f8 10px 18px)",
+        "sock": "repeating-linear-gradient(0deg,#ffafcc 0 8px,#ffc8dd 8px 14px)",
+        "glass": "linear-gradient(180deg,#e7f5ff,#a5c4d4 40%,#e7f5ff 70%,#74c0fc)",
+    }
+    return fills.get(kind, fills["rug"])
+
+
 def _scene_sticky_slippy(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
+    pose = str(kwargs.get("pose") or "loop")
+    if pose not in ("start", "play", "end", "loop"):
+        pose = "loop"
+    sticky = str(spec.get("sticky") or "Rough rug")
+    slippy = str(spec.get("slippy") or "Smooth ice")
+    sticky_kind = str(spec.get("sticky_kind") or "rug")
+    slippy_kind = str(spec.get("slippy_kind") or "ice")
+    sticky_left = spec.get("sticky_left", True)
+    if isinstance(sticky_left, str):
+        sticky_left = sticky_left.lower() not in ("0", "false", "no")
+    left_name, left_kind, left_cls = sticky, sticky_kind, "sticky"
+    right_name, right_kind, right_cls = slippy, slippy_kind, "slippy"
+    if not sticky_left:
+        left_name, left_kind, left_cls, right_name, right_kind, right_cls = (
+            right_name, right_kind, right_cls, left_name, left_kind, left_cls
+        )
     css = """
-    .stage{background:#fff}
-    .half{position:absolute;top:0;bottom:0;width:50%}
-    .rug{left:0;background:repeating-linear-gradient(90deg,#bc4749 0 18px,#f2e8cf 18px 28px)}
-    .ice{right:0;background:linear-gradient(180deg,#caf0f8,#90e0ef)}
-    .box{position:absolute;width:70px;height:48px;border-radius:10px;bottom:70px}
-    .still{left:18%;background:#e76f51;box-shadow:0 6px 0 #9d0208}
-    .slide{background:#457b9d;animation:slide 1.8s linear infinite}
-    @keyframes slide{0%{left:54%}100%{left:86%}}
+    .stage{background:linear-gradient(180deg,#fff6e9,#e9f8ff)}
+    .lane{position:absolute;top:0;bottom:0;width:50%}
+    .lane.left{left:0}.lane.right{right:0}
+    .name{position:absolute;top:10px;left:8%;right:8%;text-align:center;font-size:22px;font-weight:800;color:#1d3557}
+    .floor{position:absolute;left:8%;right:8%;bottom:18px;height:78px;border-radius:16px;border:3px solid rgba(29,53,87,.18);box-shadow:inset 0 10px 0 rgba(255,255,255,.18)}
+    .box{position:absolute;bottom:88px;width:52px;height:38px;border-radius:8px;background:#e76f51;box-shadow:0 5px 0 #9d0208}
+    .pose-start .box{left:10%}
+    .pose-play .sticky,.pose-loop .sticky{animation:stickMove 2s ease-out forwards}
+    .pose-play .slippy,.pose-loop .slippy{animation:slipMove 1.35s linear forwards}
+    .pose-loop .sticky{animation-iteration-count:infinite}
+    .pose-loop .slippy{animation-iteration-count:infinite}
+    .pose-end .sticky{left:24%}
+    .pose-end .slippy{left:68%}
+    @keyframes stickMove{0%{left:10%}35%{left:26%}50%{left:22%}100%{left:24%}}
+    @keyframes slipMove{0%{left:10%}100%{left:68%}}
     """
-    body = """
-    <div class="half rug"></div>
-    <div class="half ice"></div>
-    <div class="tag" style="top:10px;left:8%;font-size:24px;color:#fff">STICKY</div>
-    <div class="tag" style="top:10px;right:8%;font-size:24px;color:#023e8a">SLIPPY</div>
-    <div class="box still"></div>
-    <div class="box slide"></div>
+    body = f"""
+    <div class="lane left">
+      <div class="name">{html.escape(left_name)}</div>
+      <div class="floor" style="background:{_floor_fill(left_kind)}"></div>
+      <div class="box {left_cls}"></div>
+    </div>
+    <div class="lane right">
+      <div class="name">{html.escape(right_name)}</div>
+      <div class="floor" style="background:{_floor_fill(right_kind)}"></div>
+      <div class="box {right_cls}"></div>
+    </div>
     """
-    return _page(css, body, "A rug is sticky. Ice is slippy.", round_no)
+    aria = f"A box on {sticky} barely moves. A box on {slippy} slides far."
+    return _page(css, body, aria, round_no, extra_stage=f"pose-{pose}")
 
 
 def _scene_discovery(round_no: int, spec: dict | None = None, **kwargs) -> str:
