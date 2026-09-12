@@ -225,16 +225,119 @@ def run_sink_or_float() -> None:
         'tip': 'A rubber duck is light for its size, so it floats.',
     })
 
+# Cycle in order, then wrap. Question alternates slippy / sticky by index.
+STICKY_SLIPPY_PAIRS: tuple[dict[str, str], ...] = (
+    {
+        "sticky": "Rough rug",
+        "slippy": "Smooth ice",
+        "sticky_kind": "rug",
+        "slippy_kind": "ice",
+        "kid_tip": "The rug holds the box. The ice lets it slide.",
+        "tip": "A rough rug has more grip. Smooth ice is slippy.",
+    },
+    {
+        "sticky": "Sandpaper",
+        "slippy": "Wet tile",
+        "sticky_kind": "sandpaper",
+        "slippy_kind": "tile",
+        "kid_tip": "Sandpaper grabs. Wet tile is slippy.",
+        "tip": "A rough surface has more grip than a wet smooth one.",
+    },
+    {
+        "sticky": "Grass",
+        "slippy": "Playground slide",
+        "sticky_kind": "grass",
+        "slippy_kind": "slide",
+        "kid_tip": "Grass holds on. The slide lets the box zoom.",
+        "tip": "A playground slide is smooth, so things slip down it.",
+    },
+    {
+        "sticky": "Carpet",
+        "slippy": "Soapy tub",
+        "sticky_kind": "carpet",
+        "slippy_kind": "soap",
+        "kid_tip": "Carpet grabs the box. Soap makes the tub slippy.",
+        "tip": "Soap and water cut grip, so the tub is slippy.",
+    },
+    {
+        "sticky": "Dirt path",
+        "slippy": "Frozen puddle",
+        "sticky_kind": "dirt",
+        "slippy_kind": "ice",
+        "kid_tip": "Dirt holds the box. The frozen puddle is slippy.",
+        "tip": "Ice is smoother than dirt, so it is slippy.",
+    },
+    {
+        "sticky": "Rubber mat",
+        "slippy": "Marble floor",
+        "sticky_kind": "rubber",
+        "slippy_kind": "marble",
+        "kid_tip": "The rubber mat grabs. Marble is smooth and slippy.",
+        "tip": "Rubber has grip. Polished marble does not.",
+    },
+    {
+        "sticky": "Velcro",
+        "slippy": "Banana peel",
+        "sticky_kind": "velcro",
+        "slippy_kind": "peel",
+        "kid_tip": "Velcro sticks. A banana peel is slippy.",
+        "tip": "Hooks grab. A smooth peel does not.",
+    },
+    {
+        "sticky": "Gravel",
+        "slippy": "Wet rock",
+        "sticky_kind": "gravel",
+        "slippy_kind": "wetrock",
+        "kid_tip": "Gravel holds the box. A wet rock is slippy.",
+        "tip": "Water on a smooth rock makes it slippy.",
+    },
+    {
+        "sticky": "Towel",
+        "slippy": "Ice rink",
+        "sticky_kind": "towel",
+        "slippy_kind": "ice",
+        "kid_tip": "A towel grabs. The ice rink lets the box slide.",
+        "tip": "A towel is rough and dry. Ice has little grip.",
+    },
+    {
+        "sticky": "Fuzzy sock",
+        "slippy": "Smooth glass",
+        "sticky_kind": "sock",
+        "slippy_kind": "glass",
+        "kid_tip": "The fuzzy sock holds on. Glass is slippy.",
+        "tip": "Fuzz adds grip. Smooth glass does not.",
+    },
+)
+
+
+def _sticky_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
+    trials: list[dict[str, str | list[str] | bool]] = []
+    for i, pair in enumerate(STICKY_SLIPPY_PAIRS):
+        ask_slippy = i % 2 == 0
+        sticky = pair["sticky"]
+        slippy = pair["slippy"]
+        trial: dict[str, str | list[str] | bool] = dict(pair)
+        trial["question"] = "Which floor is slippy?" if ask_slippy else "Which floor is sticky?"
+        trial["choices"] = [sticky, slippy]
+        trial["answer"] = slippy if ask_slippy else sticky
+        trial["sticky_left"] = i % 2 == 0
+        trial["picture"] = "🧊" if ask_slippy else "🧶"
+        trials.append(trial)
+    return tuple(trials)
+
+
 def run_sticky_or_slippy() -> None:
     run_game({
         'id': 'forces_stuff_beginner_sticky_or_slippy',
         'title': 'Sticky or Slippy',
-        'tagline': 'Which floor is slippy?',
+        'tagline': 'Which floor is sticky? Which floor is slippy?',
         'question': 'Which floor is slippy?',
         'choices': ['Rough rug', 'Smooth ice'],
         'answer': 'Smooth ice',
         'picture': '⛸️',
         'scene': 'sticky_slippy',
-        'kid_tip': 'Smooth ice is slippy!',
-        'tip': 'Smooth ice has little grip.',
+        'animate_mode': 'once',
+        'trials': _sticky_trials(),
+        'kid_tip': 'The rug holds the box. The ice lets it slide.',
+        'tip': 'A rough rug has more grip. Smooth ice is slippy.',
     })
