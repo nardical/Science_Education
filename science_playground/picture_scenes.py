@@ -30,7 +30,13 @@ def _pose(kwargs: dict) -> str:
 
 
 def _scene_tower_fall(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    wide = str(spec.get("wide") or "Wide bottom")
+    tiny = str(spec.get("tiny") or "Tiny bottom")
+    wide_left = _truthy(spec.get("wide_left", True))
+    left_name, left_cls = (wide, "wide") if wide_left else (tiny, "tiny")
+    right_name, right_cls = (tiny, "tiny") if wide_left else (wide, "wide")
     css = """
     .stage{background:linear-gradient(180deg,#caf0f8 0 72%,#95d5b2 72%)}
     .col{position:absolute;top:18px;bottom:18px;width:42%}
@@ -44,23 +50,23 @@ def _scene_tower_fall(round_no: int, spec: dict | None = None, **kwargs) -> str:
     .pose-end .tiny{transform:rotate(78deg) translate(36px,28px)}
     @keyframes tip{60%{transform:rotate(18deg)}100%{transform:rotate(78deg) translate(36px,28px)}}
     """
-    body = """
+    body = f"""
     <div class="col left">
-      <div class="label">WIDE BOTTOM</div>
-      <div class="stack wide">
+      <div class="label">{html.escape(left_name)}</div>
+      <div class="stack {left_cls}">
         <div class="block"></div><div class="block"></div><div class="block"></div>
-        <div class="block" style="width:118px;background:#2a9d8f;box-shadow:0 4px 0 #1d6a62"></div>
+        <div class="block"></div>
       </div>
     </div>
     <div class="col right">
-      <div class="label">TINY BOTTOM</div>
-      <div class="stack tiny">
+      <div class="label">{html.escape(right_name)}</div>
+      <div class="stack {right_cls}">
         <div class="block"></div><div class="block"></div><div class="block"></div>
-        <div class="block" style="width:44px"></div>
+        <div class="block"></div>
       </div>
     </div>
     """
-    return _page(css, body, "A wide tower stays. A tiny-bottom tower falls.", f"pose-{pose}")
+    return _page(css, body, "A wide tower stays. A tiny-bottom tower falls.", f"pose-{pose}", round_no=round_no)
 
 
 def _scene_ramp_or_wall(round_no: int, spec: dict | None = None, **kwargs) -> str:
@@ -85,9 +91,9 @@ def _scene_ramp_or_wall(round_no: int, spec: dict | None = None, **kwargs) -> st
     @keyframes roll{from{left:10%}to{left:38%}}
     @keyframes bump{0%{right:38%}70%{right:22%}100%{right:22%}}
     """
-    body = """
-    <div class="tag" style="top:10px;left:8%;font-size:24px;color:#9c6644">RAMP</div>
-    <div class="tag" style="top:10px;right:10%;font-size:24px;color:#343a40">WALL</div>
+    body = f"""
+    <div class="tag" style="top:10px;left:8%;font-size:24px;color:#9c6644">{html.escape(str((spec or {}).get("path") or "Ramp"))}</div>
+    <div class="tag" style="top:10px;right:10%;font-size:24px;color:#343a40">{html.escape(str((spec or {}).get("block") or "Wall"))}</div>
     <div class="half left"><div class="ramp"></div>
       <div class="car go"><b></b><i class="a"></i><i class="b"></i></div>
     </div>
@@ -116,9 +122,9 @@ def _scene_fit_the_hole(round_no: int, spec: dict | None = None, **kwargs) -> st
     @keyframes dropIn{to{top:148px;left:calc(50% - 36px)}}
     @keyframes bounceOff{40%{top:118px;right:22%}100%{top:28px;right:10%}}
     """
-    body = """
-    <div class="tag" style="top:8px;left:12%;font-size:22px;color:#1d6a62">CIRCLE FITS</div>
-    <div class="tag" style="top:8px;right:10%;font-size:22px;color:#9d0208">SQUARE DOES NOT</div>
+    body = f"""
+    <div class="tag" style="top:8px;left:12%;font-size:22px;color:#1d6a62">{html.escape(str((spec or {}).get("fits") or "Circle"))}</div>
+    <div class="tag" style="top:8px;right:10%;font-size:22px;color:#9d0208">{html.escape(str((spec or {}).get("misses") or "Square"))}</div>
     <div class="board"></div><div class="hole"></div>
     <div class="shape circle"></div><div class="shape square"></div>
     """
@@ -126,7 +132,10 @@ def _scene_fit_the_hole(round_no: int, spec: dict | None = None, **kwargs) -> st
 
 
 def _scene_who_went_farther(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    near_name = str(spec.get("near_name") or spec.get("b") or "Blue car")
+    far_name = str(spec.get("far_name") or spec.get("a") or "Red car")
     css = """
     .stage{background:linear-gradient(180deg,#caf0f8 0 46%,#6c757d 46% 54%,#2d6a4f 54%)}
     .lane{position:absolute;left:4%;right:4%;height:8px;background:repeating-linear-gradient(90deg,#fff 0 18px,transparent 18px 34px)}
@@ -144,20 +153,24 @@ def _scene_who_went_farther(round_no: int, spec: dict | None = None, **kwargs) -
     @keyframes shortDrive{to{left:38%}}
     @keyframes longDrive{to{left:72%}}
     """
-    body = """
+    body = f"""
     <div class="flag">START</div>
-    <div class="tag" style="top:58px;right:8%;font-size:20px;color:#1d3557">BLUE</div>
-    <div class="tag" style="top:168px;right:8%;font-size:20px;color:#c1121f">RED — FARTHER</div>
+    <div class="tag" style="top:58px;right:8%;font-size:20px;color:#1d3557">{html.escape(near_name)}</div>
+    <div class="tag" style="top:168px;right:8%;font-size:20px;color:#c1121f">{html.escape(far_name)}</div>
     <div class="lane" style="top:108px"></div>
     <div class="lane" style="top:218px"></div>
     <div class="car blue"><b style="background:#457b9d"></b><i class="a"></i><i class="b"></i></div>
     <div class="car red"><b style="background:#e63946"></b><i class="a"></i><i class="b"></i></div>
     """
-    return _page(css, body, "The red car stops farther from start than the blue car.", f"pose-{pose}")
+    return _page(css, body, f"{far_name} stops farther from start than {near_name}.", f"pose-{pose}", round_no=round_no)
 
 
 def _scene_speeding_up(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    name = str(spec.get("vehicle") or spec.get("left_name") or "Car")
+    gaps = str(spec.get("gaps") or "grow")
+    spots = ("10%", "24%", "44%", "70%") if gaps == "grow" else ("10%", "28%", "42%", "52%")
     css = """
     .stage{background:linear-gradient(180deg,#dff5ff 0 70%,#95d5b2 70%)}
     .path{position:absolute;left:6%;right:6%;top:168px;height:10px;background:#6c757d;border-radius:6px}
@@ -169,37 +182,39 @@ def _scene_speeding_up(round_no: int, spec: dict | None = None, **kwargs) -> str
     .pose-end .now{left:78%}
     @keyframes zoom{from{left:8%}to{left:78%}}
     """
-    body = """
-    <div class="tag" style="top:16px;left:12px;font-size:24px;color:#c1121f">GAPS GROW — SPEEDING UP</div>
+    body = f"""
+    <div class="tag" style="top:16px;left:12px;font-size:24px;color:#1d3557">{html.escape(name)}</div>
     <div class="path"></div>
-    <div class="stamp" style="left:10%"></div>
-    <div class="stamp" style="left:24%;opacity:.55"></div>
-    <div class="stamp" style="left:44%;opacity:.7"></div>
-    <div class="stamp" style="left:70%;opacity:.9"></div>
+    <div class="stamp" style="left:{spots[0]}"></div>
+    <div class="stamp" style="left:{spots[1]};opacity:.55"></div>
+    <div class="stamp" style="left:{spots[2]};opacity:.7"></div>
+    <div class="stamp" style="left:{spots[3]};opacity:.9"></div>
     <div class="now" style="left:8%"></div>
     """
-    return _page(css, body, "Car stamps get farther apart as the car speeds up.", f"pose-{pose}")
+    aria = f"{name} leaves marks along the path."
+    return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
 
 
 def _scene_roll_downhill(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    name = str(spec.get("ball") or spec.get("left_name") or "Ball")
+    pic = str(spec.get("ball_pic") or spec.get("left_pic") or "⚽")
     css = """
     .stage{background:linear-gradient(180deg,#caf0f8,#90e0ef)}
     .hill{position:absolute;left:0;right:0;bottom:0;height:210px;background:#52b69a;
           clip-path:polygon(0 18%,100% 88%,100% 100%,0 100%)}
-    .ball{position:absolute;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#e63946);
-          top:58px;left:10%}
+    .ball{position:absolute;top:58px;left:10%;font-size:54px;line-height:1}
     .pose-play .ball,.pose-end .ball{animation:rollHill 1.8s ease-in forwards}
     .pose-end .ball{top:210px;left:78%}
     @keyframes rollHill{to{top:210px;left:78%}}
     """
-    body = """
-    <div class="tag" style="top:12px;left:10%;font-size:24px;color:#1d3557">UPHILL</div>
-    <div class="tag" style="top:12px;right:10%;font-size:24px;color:#c1121f">DOWNHILL</div>
+    body = f"""
+    <div class="tag" style="top:12px;left:10%;font-size:24px;color:#1d3557">{html.escape(name)}</div>
     <div class="hill"></div>
-    <div class="ball"></div>
+    <div class="ball">{html.escape(pic)}</div>
     """
-    return _page(css, body, "A ball rolls downhill.", f"pose-{pose}")
+    return _page(css, body, f"{name} rolls down the hill.", f"pose-{pose}", round_no=round_no)
 
 
 def _truthy(value: object, default: bool = True) -> bool:
@@ -411,199 +426,216 @@ def _scene_high_or_low(round_no: int, spec: dict | None = None, **kwargs) -> str
     return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
 
 
-def _scene_solid_or_splash(round_no: int, spec: dict | None = None, **kwargs) -> str:
+def _scene_compare(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    """Two named pictures. Motion (bob, steam, splash, still) matches the idea."""
+    spec = spec or {}
     pose = _pose(kwargs)
+    left_name = str(spec.get("left_name") or "Left")
+    right_name = str(spec.get("right_name") or "Right")
+    left_pic = str(spec.get("left_pic") or "🔵")
+    right_pic = str(spec.get("right_pic") or "🔴")
+    left_move = str(spec.get("left_move") or "still")
+    right_move = str(spec.get("right_move") or "still")
     css = """
-    .stage{background:linear-gradient(180deg,#caf0f8 0 70%,#95d5b2 70%)}
-    .block{position:absolute;left:12%;bottom:48px;width:110px;height:90px;background:#d4a373;border:5px solid #bc6c25;border-radius:10px}
-    .puddle{position:absolute;right:12%;bottom:40px;width:160px;height:36px;background:#0077b6;border-radius:50%}
-    .drop{position:absolute;right:22%;width:22px;height:28px;background:#48cae4;border-radius:50% 50% 50% 0;transform:rotate(-30deg)}
-    .pose-play .drop,.pose-end .drop{animation:drip 1.2s ease-in infinite}
-    @keyframes drip{from{top:40px;opacity:1}to{top:210px;opacity:.2}}
+    .stage{background:linear-gradient(180deg,#e9f8ff,#fff7dd)}
+    .col{position:absolute;top:18px;bottom:18px;width:46%}
+    .col.left{left:4%}.col.right{right:4%}
+    .name{text-align:center;font-size:22px;font-weight:800;color:#1d3557}
+    .pic{font-size:88px;line-height:1;text-align:center;margin-top:36px}
+    .pose-play .bob,.pose-end .bob{animation:bob 0.8s ease-in-out infinite}
+    .pose-play .steam,.pose-end .steam{animation:steam 1.4s ease-in-out infinite}
+    .pose-play .splash,.pose-end .splash{animation:splash 1.1s ease-in infinite}
+    .pose-play .grow,.pose-end .grow{animation:grow 1.5s ease-out forwards}
+    .pose-play .hop,.pose-end .hop{animation:hop 0.7s ease-in-out infinite}
+    .pose-play .wiggle,.pose-end .wiggle{animation:wiggle 0.35s linear infinite}
+    .pose-play .shiver,.pose-end .shiver{animation:shiver 0.2s linear infinite}
+    .pose-play .slide,.pose-end .slide{animation:slide 1.4s ease-in forwards}
+    @keyframes bob{50%{transform:translateY(-12px)}}
+    @keyframes steam{0%{transform:translateY(8px);opacity:.55}100%{transform:translateY(-14px);opacity:.15}}
+    @keyframes splash{0%{transform:translateY(-8px) scale(1)}100%{transform:translateY(18px) scale(.92)}}
+    @keyframes grow{from{transform:scale(.75)}to{transform:scale(1)}}
+    @keyframes hop{50%{transform:translateY(-16px)}}
+    @keyframes wiggle{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+    @keyframes shiver{from{transform:translateX(-3px)}to{transform:translateX(3px)}}
+    @keyframes slide{from{transform:translateX(0)}to{transform:translateX(40px)}}
     """
-    body = """
-    <div class="tag" style="top:12px;left:10%;font-size:22px;color:#9c6644">WOOD BLOCK</div>
-    <div class="tag" style="top:12px;right:10%;font-size:22px;color:#0077b6">WATER — SPLASH</div>
-    <div class="block"></div>
-    <div class="puddle"></div>
-    <div class="drop"></div>
+    body = f"""
+    <div class="col left">
+      <div class="name">{html.escape(left_name)}</div>
+      <div class="pic {html.escape(left_move)}">{html.escape(left_pic)}</div>
+    </div>
+    <div class="col right">
+      <div class="name">{html.escape(right_name)}</div>
+      <div class="pic {html.escape(right_move)}">{html.escape(right_pic)}</div>
+    </div>
     """
-    return _page(css, body, "A wood block holds shape. Water can splash.", f"pose-{pose}")
+    aria = f"{left_name} and {right_name}."
+    return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
+
+
+def _scene_steps(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
+    pose = _pose(kwargs)
+    steps = spec.get("steps") or (
+        {"n": "1", "label": "First", "pic": "1️⃣"},
+        {"n": "2", "label": "Next", "pic": "2️⃣"},
+        {"n": "?", "label": "Then", "pic": "❓"},
+    )
+    title = str(spec.get("steps_title") or "")
+    cards = ""
+    count = max(1, min(3, len(list(steps))))
+    for i, step in enumerate(list(steps)[:3]):
+        miss = " miss" if step.get("missing") else ""
+        left = (8 + i * 31) if count == 3 else (18 + i * 38)
+        cards += (
+            f'<div class="card{miss}" style="left:{left}%">'
+            f'<b>{html.escape(str(step.get("n") or i + 1))}</b>'
+            f'<span class="pic">{html.escape(str(step.get("pic") or ""))}</span>'
+            f'<span>{html.escape(str(step.get("label") or ""))}</span></div>'
+        )
+    css = """
+    .stage{background:linear-gradient(180deg,#ffe8d6,#e9f8ff)}
+    .title{position:absolute;top:12px;left:12px;right:12px;text-align:center;font-size:22px;font-weight:800;color:#1d3557}
+    .card{position:absolute;top:78px;width:28%;height:180px;border-radius:18px;background:#fff;border:4px solid #457b9d;text-align:center;font-weight:800;color:#1d3557}
+    .card b{display:block;font-size:28px;margin-top:10px}
+    .card .pic{display:block;font-size:42px;margin-top:8px}
+    .card span{display:block;margin-top:8px;font-size:18px}
+    .miss{border-style:dashed;border-color:#e63946;background:#fff5f5}
+    .pose-play .card,.pose-end .card{animation:pop 0.7s ease-out forwards}
+    .pose-play .miss,.pose-end .miss{animation:blink 1s ease-in-out infinite}
+    @keyframes pop{from{transform:scale(.9)}to{transform:scale(1)}}
+    @keyframes blink{50%{background:#ffe5ec}}
+    """
+    body = f'<div class="title">{html.escape(title)}</div>{cards}'
+    return _page(css, body, title or "Follow the steps.", f"pose-{pose}", round_no=round_no)
+
+
+def _scene_solid_or_splash(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
+    return _scene_compare(round_no, {
+        "left_name": spec.get("left_name") or spec.get("solid") or "Wood block",
+        "right_name": spec.get("right_name") or spec.get("liquid") or "Water",
+        "left_pic": spec.get("left_pic") or spec.get("solid_pic") or "🧱",
+        "right_pic": spec.get("right_pic") or spec.get("liquid_pic") or "💦",
+        "left_move": spec.get("left_move") or "still",
+        "right_move": spec.get("right_move") or "splash",
+    }, **kwargs)
 
 
 def _scene_hot_or_cold(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(90deg,#caf0f8 0 50%,#ffe8d6 50%)}
-    .ice{position:absolute;left:14%;top:90px;width:90px;height:90px;background:#90e0ef;border:5px solid #48cae4;border-radius:16px}
-    .bowl{position:absolute;right:14%;top:120px;width:130px;height:70px;background:#e76f51;border-radius:0 0 70px 70px}
-    .steam{position:absolute;right:20%;top:48px;width:12px;height:50px;background:#adb5bd;border-radius:8px;opacity:.55}
-    .pose-play .steam,.pose-end .steam{animation:rise 1.5s ease-in-out infinite}
-    @keyframes rise{0%{transform:translateY(10px);opacity:.2}50%{opacity:.7}100%{transform:translateY(-16px);opacity:0}}
-    """
-    body = """
-    <div class="tag" style="top:12px;left:10%;font-size:22px;color:#0077b6">ICE — COLD</div>
-    <div class="tag" style="top:12px;right:10%;font-size:22px;color:#c1121f">SOUP — HOT</div>
-    <div class="ice"></div>
-    <div class="steam" style="right:24%"></div>
-    <div class="steam" style="right:18%;height:40px"></div>
-    <div class="steam" style="right:12%"></div>
-    <div class="bowl"></div>
-    """
-    return _page(css, body, "Ice is cold. Soup is hot.", f"pose-{pose}")
+    spec = spec or {}
+    return _scene_compare(round_no, {
+        "left_name": spec.get("left_name") or spec.get("cold") or "Ice cube",
+        "right_name": spec.get("right_name") or spec.get("hot") or "Warm soup",
+        "left_pic": spec.get("left_pic") or spec.get("cold_pic") or "🧊",
+        "right_pic": spec.get("right_pic") or spec.get("hot_pic") or "🍲",
+        "left_move": spec.get("left_move") or "shiver",
+        "right_move": spec.get("right_move") or "steam",
+    }, **kwargs)
 
 
 def _scene_melt_or_freeze(round_no: int, spec: dict | None = None, **kwargs) -> str:
+    spec = spec or {}
     pose = _pose(kwargs)
+    action = str(spec.get("action") or "melt")
+    stuff = str(spec.get("stuff") or "Ice")
+    pic = str(spec.get("stuff_pic") or "🧊")
     css = """
     .stage{background:linear-gradient(180deg,#fff1c7,#caf0f8)}
-    .sun{position:absolute;right:24px;top:16px;width:58px;height:58px;border-radius:50%;background:#ffd166}
-    .ice{position:absolute;left:50%;top:70px;width:100px;height:100px;margin-left:-50px;background:#90e0ef;border:5px solid #48cae4;border-radius:18px}
-    .puddle{position:absolute;left:50%;bottom:36px;width:40px;height:16px;margin-left:-20px;background:#0077b6;border-radius:50%;opacity:.2}
-    .pose-play .ice,.pose-end .ice{animation:melt 1.8s ease-in forwards}
-    .pose-end .ice{top:150px;width:160px;height:28px;margin-left:-80px;border-radius:40px}
-    .pose-play .puddle,.pose-end .puddle{animation:grow 1.8s ease-in forwards}
-    .pose-end .puddle{width:180px;height:28px;margin-left:-90px;opacity:1}
-    @keyframes melt{to{top:150px;width:160px;height:28px;margin-left:-80px;border-radius:40px}}
-    @keyframes grow{to{width:180px;height:28px;margin-left:-90px;opacity:1}}
+    .sky{position:absolute;right:24px;top:16px;font-size:54px}
+    .name{position:absolute;top:18px;left:12px;font-size:24px;font-weight:800;color:#1d3557}
+    .bit{position:absolute;left:50%;top:78px;font-size:92px;margin-left:-50px}
+    .pose-play .melt,.pose-end .melt{animation:melt 1.7s ease-in forwards}
+    .pose-play .freeze,.pose-end .freeze{animation:freeze 1.7s ease-out forwards}
+    @keyframes melt{to{transform:translateY(70px) scaleX(1.45) scaleY(.35)}}
+    @keyframes freeze{from{transform:translateY(70px) scaleX(1.45) scaleY(.35)}to{transform:none}}
     """
-    body = """
-    <div class="tag" style="top:18px;left:12px;font-size:24px;color:#c1121f">WARM — MELT</div>
-    <div class="sun"></div>
-    <div class="ice"></div>
-    <div class="puddle"></div>
+    sky = "☀️" if action == "melt" else "❄️"
+    body = f"""
+    <div class="name">{html.escape(stuff)}</div>
+    <div class="sky">{sky}</div>
+    <div class="bit {html.escape(action)}">{html.escape(pic)}</div>
     """
-    return _page(css, body, "Warm ice melts into a puddle.", f"pose-{pose}")
+    aria = f"{stuff} will {action}."
+    return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
 
 
 def _scene_living_or_not(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(180deg,#e8f5e9,#fff)}
-    .pup{position:absolute;left:12%;bottom:50px;width:140px;height:90px}
-    .pup .body{position:absolute;left:20px;bottom:16px;width:90px;height:44px;background:#b08968;border-radius:40px}
-    .pup .head{position:absolute;right:8px;top:8px;width:54px;height:48px;background:#d4a373;border-radius:50%}
-    .car{position:absolute;right:10%;bottom:54px;width:130px;height:58px}
-    .car .cab{position:absolute;left:36px;top:0;width:48px;height:24px;background:#8ecae6;border-radius:8px 10px 0 0}
-    .car .body{position:absolute;left:4px;top:18px;width:120px;height:24px;background:#6c757d;border-radius:8px}
-    .car .wheel{position:absolute;bottom:0;width:18px;height:18px;background:#1d3557;border-radius:50%;border:3px solid #fff}
-    .car .wheel.a{left:18px}.car .wheel.b{right:18px}
-    .pose-play .pup,.pose-end .pup{animation:bob 0.8s ease-in-out infinite}
-    @keyframes bob{50%{transform:translateY(-10px)}}
-    """
-    body = """
-    <div class="tag" style="top:12px;left:10%;font-size:22px;color:#7f5539">PUPPY — LIVING</div>
-    <div class="tag" style="top:12px;right:8%;font-size:22px;color:#495057">TOY CAR</div>
-    <div class="pup"><div class="body"></div><div class="head"></div></div>
-    <div class="car"><div class="cab"></div><div class="body"></div><div class="wheel a"></div><div class="wheel b"></div></div>
-    """
-    return _page(css, body, "A puppy is living. A toy car is not.", f"pose-{pose}")
+    spec = spec or {}
+    return _scene_compare(round_no, {
+        "left_name": spec.get("left_name") or spec.get("living") or "Puppy",
+        "right_name": spec.get("right_name") or spec.get("not_living") or "Toy car",
+        "left_pic": spec.get("left_pic") or spec.get("living_pic") or "🐶",
+        "right_pic": spec.get("right_pic") or spec.get("not_pic") or "🚗",
+        "left_move": spec.get("left_move") or "bob",
+        "right_move": spec.get("right_move") or "still",
+    }, **kwargs)
 
 
 def _scene_plant_or_animal(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(180deg,#caf0f8 0 68%,#95d5b2 68%)}
-    .flower{position:absolute;left:16%;bottom:40px}
-    .stem{width:14px;height:120px;background:#2d6a4f;margin:0 auto}
-    .head{width:78px;height:78px;background:#ffd166;border-radius:50%;border:10px solid #f4a261;margin:0 auto}
-    .bunny{position:absolute;right:14%;bottom:48px;width:90px;height:110px}
-    .bunny .ear{position:absolute;top:0;width:18px;height:48px;background:#fff;border-radius:12px}
-    .bunny .body{position:absolute;bottom:0;left:8px;width:70px;height:70px;background:#fff;border-radius:40px}
-    .pose-play .head,.pose-end .head{animation:grow 1.6s ease-out forwards}
-    @keyframes grow{from{transform:scale(.7)}to{transform:scale(1)}}
-    """
-    body = """
-    <div class="tag" style="top:12px;left:8%;font-size:22px;color:#2d6a4f">SUNFLOWER — PLANT</div>
-    <div class="tag" style="top:12px;right:8%;font-size:22px;color:#6c584c">RABBIT — ANIMAL</div>
-    <div class="flower"><div class="head"></div><div class="stem"></div></div>
-    <div class="bunny"><div class="ear" style="left:18px"></div><div class="ear" style="left:48px"></div><div class="body"></div></div>
-    """
-    return _page(css, body, "A sunflower is a plant. A rabbit is an animal.", f"pose-{pose}")
+    spec = spec or {}
+    return _scene_compare(round_no, {
+        "left_name": spec.get("left_name") or spec.get("plant") or "Sunflower",
+        "right_name": spec.get("right_name") or spec.get("animal") or "Rabbit",
+        "left_pic": spec.get("left_pic") or spec.get("plant_pic") or "🌻",
+        "right_pic": spec.get("right_pic") or spec.get("animal_pic") or "🐇",
+        "left_move": spec.get("left_move") or "grow",
+        "right_move": spec.get("right_move") or "hop",
+    }, **kwargs)
 
 
 def _scene_hungry_or_full(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(180deg,#caf0f8,#e8f5e9)}
-    .bird{position:absolute;left:50%;top:70px;width:90px;height:70px;margin-left:-45px}
-    .bird .body{width:90px;height:54px;background:#457b9d;border-radius:50%}
-    .bird .beak{position:absolute;right:-22px;top:22px;width:28px;height:16px;background:#f77f00;clip-path:polygon(0 0,100% 50%,0 100%)}
-    .food{position:absolute;left:12%;bottom:48px;width:70px;height:28px;background:#e76f51;border-radius:0 0 40px 40px}
-    .seed{position:absolute;left:18%;bottom:70px;width:16px;height:16px;background:#ffd166;border-radius:50%}
-    .toy{position:absolute;right:12%;bottom:54px;width:70px;height:44px;background:#6c757d;border-radius:10px}
-    .pose-play .beak,.pose-end .beak{animation:open 0.8s ease-in-out infinite}
-    @keyframes open{50%{transform:rotate(12deg)}}
-    """
-    body = """
-    <div class="tag" style="top:12px;left:8%;font-size:22px;color:#c1121f">FOOD</div>
-    <div class="tag" style="top:12px;right:8%;font-size:22px;color:#6c757d">A TOY</div>
-    <div class="food"></div><div class="seed"></div>
-    <div class="bird"><div class="body"></div><div class="beak"></div></div>
-    <div class="toy"></div>
-    """
-    return _page(css, body, "A hungry bird needs food, not a toy.", f"pose-{pose}")
+    spec = spec or {}
+    return _scene_compare(round_no, {
+        "left_name": spec.get("left_name") or spec.get("need") or "Food",
+        "right_name": spec.get("right_name") or spec.get("not_need") or "A toy",
+        "left_pic": spec.get("left_pic") or spec.get("need_pic") or "🪱",
+        "right_pic": spec.get("right_pic") or spec.get("not_pic") or "🧸",
+        "left_move": spec.get("left_move") or "bob",
+        "right_move": spec.get("right_move") or "still",
+    }, **kwargs)
 
 
 def _scene_first_then_next(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(180deg,#ffe8d6,#fff)}
-    .card{position:absolute;top:70px;width:150px;height:170px;border-radius:18px;background:#fff;border:4px solid #457b9d;text-align:center;font-weight:800;color:#1d3557}
-    .card b{display:block;font-size:42px;margin-top:18px}
-    .card span{display:block;margin-top:12px;font-size:22px}
-    .one{left:8%}.two{left:50%;margin-left:-75px}.three{right:8%;opacity:.35}
-    .arrow{position:absolute;top:140px;left:28%;font-size:42px;color:#e76f51;font-weight:800}
-    .pose-play .two,.pose-end .two{animation:pop 0.8s ease-out forwards}
-    @keyframes pop{from{transform:scale(.85)}to{transform:scale(1)}}
-    """
-    body = """
-    <div class="tag" style="top:12px;left:12px;font-size:22px;color:#9c6644">FIRST, THEN NEXT</div>
-    <div class="card one"><b>1</b><span>SOCKS</span></div>
-    <div class="arrow">→</div>
-    <div class="card two"><b>2</b><span>SHOES</span></div>
-    <div class="card three"><b>3</b><span>HAT</span></div>
-    """
-    return _page(css, body, "First socks, then shoes. Not the hat yet.", f"pose-{pose}")
+    spec = spec or {}
+    if spec.get("steps"):
+        return _scene_steps(round_no, spec, **kwargs)
+    return _scene_steps(round_no, {
+        "steps_title": spec.get("steps_title") or "First, then next",
+        "steps": (
+            {"n": "1", "label": spec.get("first") or "Socks", "pic": spec.get("first_pic") or "🧦"},
+            {"n": "2", "label": spec.get("next") or "Shoes", "pic": spec.get("next_pic") or "👟"},
+            {"n": "3", "label": spec.get("later") or "Hat", "pic": spec.get("later_pic") or "🎩"},
+        ),
+    }, **kwargs)
 
 
 def _scene_missing_step(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(180deg,#e9f8ff,#fff)}
-    .card{position:absolute;top:80px;width:140px;height:150px;border-radius:18px;background:#fff;border:4px solid #2a9d8f;text-align:center;font-weight:800;color:#1d3557}
-    .card b{display:block;font-size:36px;margin-top:16px}
-    .card span{display:block;margin-top:10px;font-size:20px}
-    .miss{border-style:dashed;border-color:#e63946;background:#fff5f5}
-    .pose-play .miss,.pose-end .miss{animation:blink 1s ease-in-out infinite}
-    @keyframes blink{50%{background:#ffe5ec}}
-    """
-    body = """
-    <div class="tag" style="top:14px;left:12px;font-size:22px;color:#c1121f">WHICH STEP IS MISSING?</div>
-    <div class="card" style="left:8%"><b>1</b><span>WASH</span></div>
-    <div class="card" style="left:50%;margin-left:-70px"><b>2</b><span>DRY</span></div>
-    <div class="card miss" style="right:8%"><b>?</b><span>PUT AWAY</span></div>
-    """
-    return _page(css, body, "Wash, dry, then put away. The last step was missing.", f"pose-{pose}")
+    spec = spec or {}
+    if spec.get("steps"):
+        return _scene_steps(round_no, spec, **kwargs)
+    return _scene_steps(round_no, {
+        "steps_title": spec.get("steps_title") or "Which step is missing?",
+        "steps": (
+            {"n": "1", "label": spec.get("one") or "Wash", "pic": spec.get("one_pic") or "🧼"},
+            {"n": "2", "label": spec.get("two") or "Dry", "pic": spec.get("two_pic") or "💨"},
+            {"n": "?", "label": spec.get("missing") or "Put away", "pic": spec.get("missing_pic") or "🧺", "missing": True},
+        ),
+    }, **kwargs)
 
 
 def _scene_do_it_again(round_no: int, spec: dict | None = None, **kwargs) -> str:
-    pose = _pose(kwargs)
-    css = """
-    .stage{background:linear-gradient(180deg,#f3e8ff,#fff)}
-    .clap{position:absolute;left:50%;top:90px;width:120px;height:80px;margin-left:-60px;background:#ef476f;border-radius:40px}
-    .loop{position:absolute;left:50%;top:46px;width:200px;height:200px;margin-left:-100px;border:10px dashed #6a4c93;border-radius:50%}
-    .pose-play .loop,.pose-end .loop{animation:spin 3s linear infinite}
-    .pose-play .clap,.pose-end .clap{animation:clap 0.7s ease-in-out infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes clap{50%{transform:scale(1.08)}}
-    """
-    body = """
-    <div class="tag" style="top:14px;left:12px;font-size:24px;color:#6a4c93">REPEAT — DO IT AGAIN</div>
-    <div class="loop"></div>
-    <div class="clap"></div>
-    """
-    return _page(css, body, "Repeat means do the step again.", f"pose-{pose}")
+    spec = spec or {}
+    action = str(spec.get("action") or "Clap")
+    pic = str(spec.get("action_pic") or "👏")
+    return _scene_steps(round_no, {
+        "steps_title": spec.get("steps_title") or "Repeat means do it again",
+        "steps": (
+            {"n": "1", "label": action, "pic": pic},
+            {"n": "2", "label": action, "pic": pic},
+            {"n": "3", "label": action, "pic": pic},
+        ),
+    }, **kwargs)
 
 
 EXTRA_SCENES = {
@@ -625,4 +657,6 @@ EXTRA_SCENES = {
     "first_then_next": _scene_first_then_next,
     "missing_step": _scene_missing_step,
     "do_it_again": _scene_do_it_again,
+    "compare": _scene_compare,
+    "steps": _scene_steps,
 }

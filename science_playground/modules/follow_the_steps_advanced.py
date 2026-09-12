@@ -1,16 +1,172 @@
-"""Three playable science games."""
+"""Follow the Steps — Advanced: 10 examples per game."""
 from __future__ import annotations
 import sys
 from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
-if str(_ROOT) not in sys.path: sys.path.insert(0, str(_ROOT))
-from science_utils import run_game
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+from pair_trials import step_game
 
-def run_debug_the_path() -> None:
-    run_game({'id': 'follow_the_steps_advanced_debug_the_path', 'title': 'Debug the Path', 'tagline': 'Robot turns wrong. What should change?', 'question': 'Robot turns wrong. What should change?', 'choices': ['Turn step', 'Battery color'], 'answer': 'Turn step', 'picture': '🐞', 'tip': 'Debug the incorrect turn instruction.'})
+DEBUG = (
+    {"question": "Robot turns wrong. What should change?", "choices": ["Turn step", "Battery color"], "answer": "Turn step",
+     "first": "Go", "next": "Wrong turn", "later": "Fix turn",
+     "first_pic": "🤖", "next_pic": "↪️", "later_pic": "🛠️",
+     "kid_tip": "Change the turn step, not the battery color.",
+     "tip": "Debug means find the wrong step and change it.", "picture": "🐞"},
+    {"question": "Robot turns wrong. What does not help?", "choices": ["Battery color", "Turn step"], "answer": "Battery color",
+     "first": "Go", "next": "Wrong turn", "later": "Paint",
+     "first_pic": "🤖", "next_pic": "↪️", "later_pic": "🎨",
+     "kid_tip": "Paint and battery color do not fix a wrong turn.",
+     "tip": "Change the incorrect step.", "picture": "🐞"},
+    {"question": "The path says left but we need right. Change what?", "choices": ["Turn card", "Robot name"], "answer": "Turn card",
+     "first": "Left card", "next": "Need right", "later": "Swap card",
+     "first_pic": "⬅️", "next_pic": "➡️", "later_pic": "🛠️",
+     "kid_tip": "Swap the turn card.", "tip": "Debug the incorrect turn instruction.", "picture": "🐞"},
+    {"question": "The path says left but we need right. What is extra?", "choices": ["Robot name", "Turn card"], "answer": "Robot name",
+     "first": "Name", "next": "Turn", "later": "Fix turn",
+     "first_pic": "🏷️", "next_pic": "↪️", "later_pic": "🛠️",
+     "kid_tip": "The name is extra.", "tip": "The name is not the bug.", "picture": "🐞"},
+    {"question": "It hops when it should clap. Change what?", "choices": ["The hop step", "The floor color"], "answer": "The hop step",
+     "first": "Hop", "next": "Should clap", "later": "Fix",
+     "first_pic": "🐰", "next_pic": "👏", "later_pic": "🛠️",
+     "kid_tip": "Change hop to clap.", "tip": "Find the wrong step.", "picture": "🐞"},
+    {"question": "It hops when it should clap. What is extra?", "choices": ["The floor color", "The hop step"], "answer": "The floor color",
+     "first": "Floor", "next": "Hop", "later": "Clap",
+     "first_pic": "🟫", "next_pic": "🐰", "later_pic": "👏",
+     "kid_tip": "Floor color is extra.", "tip": "The floor is not the bug.", "picture": "🐞"},
+    {"question": "It stops too soon. Change what?", "choices": ["Add a go step", "Change the sticker"], "answer": "Add a go step",
+     "first": "Stop", "next": "Need go", "later": "Add go",
+     "first_pic": "🛑", "next_pic": "🟢", "later_pic": "🛠️",
+     "kid_tip": "Add the missing go step.", "tip": "A missing step can be the bug.", "picture": "🐞"},
+    {"question": "It stops too soon. What is extra?", "choices": ["Change the sticker", "Add a go step"], "answer": "Change the sticker",
+     "first": "Sticker", "next": "Stop", "later": "Go",
+     "first_pic": "⭐", "next_pic": "🛑", "later_pic": "🟢",
+     "kid_tip": "A sticker is extra.", "tip": "Looks are not the bug.", "picture": "🐞"},
+    {"question": "It turns twice. We need one turn. Change what?", "choices": ["Delete one turn", "Paint the robot"], "answer": "Delete one turn",
+     "first": "Turn", "next": "Turn again", "later": "Keep one",
+     "first_pic": "↪️", "next_pic": "↪️", "later_pic": "🛠️",
+     "kid_tip": "Delete the extra turn.", "tip": "An extra step can be the bug.", "picture": "🐞"},
+    {"question": "It turns twice. We need one turn. What is extra?", "choices": ["Paint the robot", "Delete one turn"], "answer": "Paint the robot",
+     "first": "Paint", "next": "Two turns", "later": "One turn",
+     "first_pic": "🎨", "next_pic": "↪️", "later_pic": "🛠️",
+     "kid_tip": "Paint is extra.", "tip": "Paint does not fix the path.", "picture": "🐞"},
+)
 
-def run_loop_the_square() -> None:
-    run_game({'id': 'follow_the_steps_advanced_loop_the_square', 'title': 'Loop the Square', 'tagline': 'Which steps repeat four times?', 'question': 'Which steps repeat four times?', 'choices': ['Forward, turn', 'Jump, sleep'], 'answer': 'Forward, turn', 'picture': '⬜', 'tip': 'Forward then turn repeated makes a square.'})
+SQUARE = (
+    {"question": "Which steps repeat four times?", "choices": ["Forward, turn", "Jump, sleep"], "answer": "Forward, turn",
+     "first": "Forward", "next": "Turn", "later": "Again",
+     "first_pic": "⬆️", "next_pic": "↪️", "later_pic": "🔁",
+     "action": "Forward, turn", "action_pic": "⬜",
+     "kid_tip": "Forward then turn, four times, makes a square.",
+     "tip": "Forward then turn repeated makes a square.", "picture": "⬜"},
+    {"question": "Which steps do not make a square?", "choices": ["Jump, sleep", "Forward, turn"], "answer": "Jump, sleep",
+     "first": "Jump", "next": "Sleep", "later": "No square",
+     "first_pic": "🦘", "next_pic": "😴", "later_pic": "🚫",
+     "action": "Jump, sleep", "action_pic": "🦘",
+     "kid_tip": "Jump and sleep do not draw a square.", "tip": "Keep the square steps.", "picture": "⬜"},
+    {"question": "To walk a square, repeat what?", "choices": ["Step, turn", "Spin forever"], "answer": "Step, turn",
+     "first": "Step", "next": "Turn", "later": "Four times",
+     "first_pic": "🚶", "next_pic": "↪️", "later_pic": "4️⃣",
+     "action": "Step, turn", "action_pic": "⬜",
+     "kid_tip": "Step, turn, four times.", "tip": "A loop can draw a square.", "picture": "⬜"},
+    {"question": "To walk a square, what is extra?", "choices": ["Spin forever", "Step, turn"], "answer": "Spin forever",
+     "first": "Spin", "next": "Forever", "later": "No",
+     "first_pic": "💫", "next_pic": "♾️", "later_pic": "🚫",
+     "action": "Spin", "action_pic": "💫",
+     "kid_tip": "Forever spinning is extra.", "tip": "Four times, not forever.", "picture": "⬜"},
+    {"question": "Tape a square. Repeat what four times?", "choices": ["Forward, corner", "Sit, snack"], "answer": "Forward, corner",
+     "first": "Forward", "next": "Corner", "later": "Again",
+     "first_pic": "⬆️", "next_pic": "📐", "later_pic": "🔁",
+     "action": "Forward, corner", "action_pic": "⬜",
+     "kid_tip": "Forward, then the corner, four times.", "tip": "Four sides make a square.", "picture": "⬜"},
+    {"question": "Tape a square. What is extra?", "choices": ["Sit, snack", "Forward, corner"], "answer": "Sit, snack",
+     "first": "Sit", "next": "Snack", "later": "No",
+     "first_pic": "🪑", "next_pic": "🍪", "later_pic": "🚫",
+     "action": "Sit, snack", "action_pic": "🍪",
+     "kid_tip": "Sit and snack are extra.", "tip": "Keep the path steps.", "picture": "⬜"},
+    {"question": "A robot square needs how many matching sides?", "choices": ["4", "1"], "answer": "4",
+     "action": "Side", "action_pic": "⬜",
+     "kid_tip": "A square has four matching sides.", "tip": "Repeat four times.", "picture": "⬜"},
+    {"question": "A robot square. Which number is extra?", "choices": ["1", "4"], "answer": "1",
+     "action": "Side", "action_pic": "⬜",
+     "kid_tip": "One side is not a square yet.", "tip": "You need four.", "picture": "⬜"},
+    {"question": "Loop: forward, turn. How many loops for a square?", "choices": ["4", "7"], "answer": "4",
+     "action": "Loop", "action_pic": "🔁",
+     "kid_tip": "Four loops make four sides.", "tip": "Forward, turn, four times.", "picture": "⬜"},
+    {"question": "Loop: forward, turn. Which number is extra?", "choices": ["7", "4"], "answer": "7",
+     "action": "Loop", "action_pic": "🔁",
+     "kid_tip": "Seven is extra.", "tip": "A square needs four.", "picture": "⬜"},
+)
 
-def run_if_wet_then_boots() -> None:
-    run_game({'id': 'follow_the_steps_advanced_if_wet_then_boots', 'title': 'If Wet, Then Boots', 'tagline': 'The ground is wet. Wear what?', 'question': 'The ground is wet. Wear what?', 'choices': ['Boots', 'Slippers'], 'answer': 'Boots', 'picture': '🌧️', 'tip': 'The condition is wet, so choose boots.'})
+WET = (
+    {"question": "The ground is wet. Wear what?", "choices": ["Boots", "Slippers"], "answer": "Boots",
+     "first": "Wet ground", "next": "Boots", "later": "Go",
+     "first_pic": "🌧️", "next_pic": "👢", "later_pic": "🚶",
+     "kid_tip": "If wet, then boots.", "tip": "The condition is wet, so choose boots.", "picture": "🌧️"},
+    {"question": "The ground is dry. Wear what?", "choices": ["Shoes", "Rain boots"], "answer": "Shoes",
+     "first": "Dry ground", "next": "Shoes", "later": "Go",
+     "first_pic": "☀️", "next_pic": "👟", "later_pic": "🚶",
+     "kid_tip": "Dry ground does not need rain boots.", "tip": "The if part must match.", "picture": "🌧️"},
+    {"question": "If wet, then boots. It is raining. Wear what?", "choices": ["Boots", "Socks only"], "answer": "Boots",
+     "first": "Rain", "next": "Boots", "later": "Puddle",
+     "first_pic": "🌧️", "next_pic": "👢", "later_pic": "💧",
+     "kid_tip": "Rain means wet, so boots.", "tip": "If wet, then boots.", "picture": "🌧️"},
+    {"question": "If wet, then boots. The rug is dry. Wear what?", "choices": ["Indoor shoes", "Rain boots"], "answer": "Indoor shoes",
+     "first": "Dry rug", "next": "Indoor shoes", "later": "Home",
+     "first_pic": "🧶", "next_pic": "👟", "later_pic": "🏠",
+     "kid_tip": "A dry rug does not need rain boots.", "tip": "The rule starts with if wet.", "picture": "🌧️"},
+    {"question": "If puddle, then boots. There is a puddle. Wear what?", "choices": ["Boots", "Flip-flops"], "answer": "Boots",
+     "first": "Puddle", "next": "Boots", "later": "Splash",
+     "first_pic": "💧", "next_pic": "👢", "later_pic": "💦",
+     "kid_tip": "A puddle is wet, so boots.", "tip": "Follow the if-then rule.", "picture": "🌧️"},
+    {"question": "If puddle, then boots. The path is dry. Wear what?", "choices": ["Sneakers", "Rain boots"], "answer": "Sneakers",
+     "first": "Dry path", "next": "Sneakers", "later": "Walk",
+     "first_pic": "🛤️", "next_pic": "👟", "later_pic": "🚶",
+     "kid_tip": "No puddle, so sneakers are fine.", "tip": "The if part must match.", "picture": "🌧️"},
+    {"question": "If snow, then boots. It is snowing. Wear what?", "choices": ["Boots", "Sandals"], "answer": "Boots",
+     "first": "Snow", "next": "Boots", "later": "Warm",
+     "first_pic": "❄️", "next_pic": "👢", "later_pic": "🧣",
+     "kid_tip": "Snow is wet and cold, so boots.", "tip": "If snow, then boots.", "picture": "🌧️"},
+    {"question": "If snow, then boots. It is a sunny indoor day. Wear what?", "choices": ["Slippers", "Snow boots"], "answer": "Slippers",
+     "first": "Indoor sun", "next": "Slippers", "later": "Home",
+     "first_pic": "☀️", "next_pic": "🥿", "later_pic": "🏠",
+     "kid_tip": "Indoors and dry: slippers.", "tip": "The if part must match.", "picture": "🌧️"},
+    {"question": "If mud, then boots. The yard is muddy. Wear what?", "choices": ["Boots", "Socks"], "answer": "Boots",
+     "first": "Mud", "next": "Boots", "later": "Yard",
+     "first_pic": "🟤", "next_pic": "👢", "later_pic": "🌱",
+     "kid_tip": "Mud is wet, so boots.", "tip": "If wet or muddy, then boots.", "picture": "🌧️"},
+    {"question": "If mud, then boots. The kitchen floor is clean. Wear what?", "choices": ["Indoor shoes", "Mud boots"], "answer": "Indoor shoes",
+     "first": "Clean floor", "next": "Indoor shoes", "later": "Kitchen",
+     "first_pic": "🧹", "next_pic": "👟", "later_pic": "🍽️",
+     "kid_tip": "A clean floor does not need mud boots.", "tip": "If-then rules still work in the world.", "picture": "🌧️"},
+)
+
+run_debug_the_path = step_game(
+    game_id="follow_the_steps_advanced_debug_the_path",
+    title="Debug the Path",
+    tagline="What should change? What is extra?",
+    picture="🐞",
+    rows=DEBUG,
+    scene="missing_step",
+    tip="Debug the incorrect turn instruction.",
+)
+
+run_loop_the_square = step_game(
+    game_id="follow_the_steps_advanced_loop_the_square",
+    title="Loop the Square",
+    tagline="Which steps repeat? Which steps are extra?",
+    picture="⬜",
+    rows=SQUARE,
+    scene="do_it_again",
+    tip="Forward then turn repeated makes a square.",
+)
+
+run_if_wet_then_boots = step_game(
+    game_id="follow_the_steps_advanced_if_wet_then_boots",
+    title="If Wet, Then Boots",
+    tagline="If wet, then boots. If dry, then shoes.",
+    picture="🌧️",
+    rows=WET,
+    scene="first_then_next",
+    tip="The condition is wet, so choose boots.",
+)
