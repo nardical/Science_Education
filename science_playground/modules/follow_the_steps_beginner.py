@@ -18,11 +18,11 @@ FIRST_NEXT = (
         "picture": "🧦",
     },
     {
-        "question": "First wash hands. What is extra?",
-        "choices": ["Soap", "Boots"], "answer": "Boots",
+        "question": "First wash hands. What comes next?",
+        "choices": ["Soap", "Boots"], "answer": "Soap",
         "first": "Wash", "next": "Soap", "later": "Boots",
         "first_pic": "🧼", "next_pic": "🧴", "later_pic": "👢",
-        "kid_tip": "Boots are not the next wash step.", "tip": "Keep the next step in the same job.",
+        "kid_tip": "After you wash, use soap.", "tip": "Wash, then soap.",
         "picture": "🧼",
     },
     {
@@ -66,11 +66,13 @@ FIRST_NEXT = (
         "picture": "🥣",
     },
     {
-        "question": "First sit. What comes next?",
-        "choices": ["Buckle", "Paint"], "answer": "Buckle",
-        "first": "Sit", "next": "Buckle", "later": "Paint",
-        "first_pic": "🪑", "next_pic": "🔒", "later_pic": "🎨",
-        "kid_tip": "After you sit, buckle.", "tip": "Sit, then buckle.",
+        "question": "First sit in the car. What comes next?",
+        "choices": ["Seatbelt", "Paint"], "answer": "Seatbelt",
+        "first": "Sit", "next": "Seatbelt", "later": "Paint",
+        "first_pic": "🚗", "next_pic": "🚗", "later_pic": "🎨",
+        "first_art": "car-seat", "next_art": "seatbelt",
+        "kid_tip": "After you sit in the car, put on the seatbelt.",
+        "tip": "Sit, then click the seatbelt.",
         "picture": "🚗",
     },
     {

@@ -186,3 +186,25 @@ def test_compare_and_step_scenes_use_names_not_giveaway_tags() -> None:
     )
     assert "Ice" in melt
     assert "it melts" not in melt
+
+
+def test_first_then_next_asks_what_comes_next() -> None:
+    wash = fts_beg.FIRST_NEXT[1]
+    assert wash["question"] == "First wash hands. What comes next?"
+    assert wash["answer"] == "Soap"
+    assert "extra" not in wash["question"].lower()
+    for row in fts_beg.FIRST_NEXT:
+        assert "What comes next?" in row["question"]
+        assert "extra" not in row["question"].lower()
+
+
+def test_first_then_next_car_round_shows_a_seatbelt() -> None:
+    row = fts_beg.FIRST_NEXT[7]
+    assert row["answer"] == "Seatbelt"
+    assert "Buckle" not in row["choices"]
+    assert "sit in the car" in row["question"]
+    html = EXTRA_SCENES["first_then_next"](7, row, pose="start")
+    assert "car-seat" in html
+    assert "belt-buckle" in html
+    assert "Seatbelt" in html
+    assert "🔒" not in html
