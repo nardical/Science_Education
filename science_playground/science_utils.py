@@ -166,8 +166,9 @@ def remember_choice_order(
 ) -> list[str]:
     """Shuffle answer buttons once per question and keep that order on reruns.
 
-    Rotating by round lined up with Melt or Freeze, which already lists the
-    right word first, so the correct box went left, right, left, right.
+    Melt or Freeze lists Melt then Freeze every round, and the answers already
+    alternate. A rotate-by-round (or no shuffle at all) then made the correct
+    box march left, right, left, right.
     """
     stored = store.get(key)
     wanted = list(choices)
