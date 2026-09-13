@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import html
+import random
 import time
+from collections.abc import MutableMapping, Sequence
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -154,6 +156,29 @@ def _with_discovery_trials(spec: dict) -> dict:
             "trial_style": index % 5,
         })
     return {**spec, "animate_mode": "once", "trials": tuple(trials)}
+
+
+def remember_choice_order(
+    store: MutableMapping[str, object],
+    key: str,
+    choices: Sequence[str],
+    rng: random.Random | None = None,
+) -> list[str]:
+    """Shuffle answer buttons once per question and keep that order on reruns.
+
+    A simple rotate-by-round lined up with games that also flip the question
+    (light/dark, heavier/lighter, faster/slower), so the correct box stayed
+    on one side. A stored shuffle breaks that pattern without jumping around
+    when Streamlit reruns the page.
+    """
+    stored = store.get(key)
+    wanted = list(choices)
+    if isinstance(stored, list) and sorted(stored) == sorted(wanted):
+        return list(stored)
+    items = list(wanted)
+    (rng or random.Random()).shuffle(items)
+    store[key] = items
+    return items
 
 
 def inject_form_css() -> None:
@@ -1084,10 +1109,9 @@ def run_game(spec: dict) -> None:
     show_scene(spec, round_no, pose=pose)
     clear_feedback_overlay()
     st.subheader(spec["question"])
-    choices = list(spec["choices"])
-    # Rotate positions each round without randomness or trick scoring.
-    shift = round_no % len(choices)
-    choices = choices[shift:] + choices[:shift]
+    choices = remember_choice_order(
+        st.session_state, f"{key}_{round_no}_order", list(spec["choices"])
+    )
     cols = st.columns(len(choices))
     kid_detail = spec.get("kid_tip") or spec["tip"]
     for col, choice in zip(cols, choices):

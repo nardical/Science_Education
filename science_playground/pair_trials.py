@@ -4,6 +4,16 @@ from __future__ import annotations
 from typing import Any
 
 
+def pair_a_left(index: int) -> bool:
+    """Put pair item A on the left independently of which question we ask.
+
+    Alternating questions used to reuse the same even/odd bit for side, which
+    pinned the correct picture to one box. A four-round cycle places the
+    answer left, right, right, left.
+    """
+    return index % 4 < 2
+
+
 def flip_two_choice(
     pairs: tuple[dict[str, Any], ...],
     *,
@@ -26,7 +36,7 @@ def flip_two_choice(
         b_pic = str(pair.get(pic_b) or "🔴")
         a_mv = str(pair.get(move_a) or "bob")
         b_mv = str(pair.get(move_b) or "still")
-        a_left = i % 2 == 0
+        a_left = pair_a_left(i)
         trial: dict[str, Any] = dict(pair)
         trial["scene"] = scene
         trial["question"] = q_for_a if ask_a else q_for_b
@@ -110,7 +120,7 @@ def named_trials(
         trial["question"] = q_for_a if ask_a else q_for_b
         trial["choices"] = [row[a], row[b]]
         trial["answer"] = row[a] if ask_a else row[b]
-        trial["wide_left"] = i % 2 == 0
+        trial["wide_left"] = pair_a_left(i)
         trial["picture"] = picture
         trials.append(trial)
     return tuple(trials)

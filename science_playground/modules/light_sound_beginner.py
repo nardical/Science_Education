@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path: sys.path.insert(0, str(_ROOT))
+from pair_trials import pair_a_left
 from science_utils import run_game
 
 # Cycle in order, then wrap. Question alternates light / dark by index.
@@ -101,7 +102,7 @@ def _light_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
         trial["question"] = "Which place is light?" if ask_light else "Which place is dark?"
         trial["choices"] = [light, dark]
         trial["answer"] = light if ask_light else dark
-        trial["light_left"] = i % 2 == 0
+        trial["light_left"] = pair_a_left(i)
         trial["picture"] = "☀️" if ask_light else "🌙"
         trials.append(trial)
     return tuple(trials)
@@ -239,9 +240,10 @@ def _loud_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
         trial["choices"] = [loud, quiet]
         trial["answer"] = loud if ask_loud else quiet
         trial["answer_sound"] = pair["hear_loud"] if ask_loud else pair["hear_quiet"]
-        trial["hear_left"] = pair["hear_quiet"] if i % 2 == 0 else pair["hear_loud"]
-        trial["hear_right"] = pair["hear_loud"] if i % 2 == 0 else pair["hear_quiet"]
-        trial["loud_left"] = i % 2 == 1
+        loud_left = pair_a_left(i)
+        trial["loud_left"] = loud_left
+        trial["hear_left"] = pair["hear_loud"] if loud_left else pair["hear_quiet"]
+        trial["hear_right"] = pair["hear_quiet"] if loud_left else pair["hear_loud"]
         trial["picture"] = "🥁" if ask_loud else "🤫"
         trials.append(trial)
     return tuple(trials)
@@ -359,9 +361,10 @@ def _high_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
         trial["choices"] = [high, low]
         trial["answer"] = high if ask_high else low
         trial["answer_sound"] = "high" if ask_high else "low"
-        trial["hear_left"] = "high" if i % 2 == 0 else "low"
-        trial["hear_right"] = "low" if i % 2 == 0 else "high"
-        trial["high_left"] = i % 2 == 0
+        high_left = pair_a_left(i)
+        trial["high_left"] = high_left
+        trial["hear_left"] = "high" if high_left else "low"
+        trial["hear_right"] = "low" if high_left else "high"
         trial["picture"] = pair.get("high_pic") or "🔔"
         trials.append(trial)
     return tuple(trials)
