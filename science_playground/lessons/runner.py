@@ -7,7 +7,7 @@ from typing import Any
 import streamlit as st
 
 from feedback_popup import clear_feedback_overlay, show_feedback_overlay
-from science_utils import FEEDBACK_SECONDS, inject_form_css, show_scene
+from science_utils import FEEDBACK_SECONDS, inject_form_css, remember_choice_order, show_scene
 
 from .catalog import BUILD_PRIORITY, Lesson, get_lesson
 
@@ -69,7 +69,9 @@ def _ask_and_wait(lesson_id: str, beat_id: str, ask: dict[str, Any]) -> bool:
             st.session_state[done_key] = True
         st.rerun()
     st.subheader(ask["question"])
-    choices = list(ask["choices"])
+    choices = remember_choice_order(
+        st.session_state, _key(lesson_id, f"{beat_id}_order"), list(ask["choices"])
+    )
     cols = st.columns(len(choices))
     for col, choice in zip(cols, choices):
         if col.button(choice, use_container_width=True, key=_key(lesson_id, f"{beat_id}_{choice}")):
