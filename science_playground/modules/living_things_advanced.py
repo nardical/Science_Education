@@ -1,16 +1,137 @@
-"""Three playable science games."""
+"""Living Things — Advanced: 10 picture pairs per game."""
 from __future__ import annotations
 import sys
 from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
-if str(_ROOT) not in sys.path: sys.path.insert(0, str(_ROOT))
-from science_utils import run_game
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+from pair_trials import compare_game, step_game
 
-def run_life_cycle_order() -> None:
-    run_game({'id': 'living_things_advanced_life_cycle_order', 'title': 'Life Cycle Order', 'tagline': 'What comes after an egg?', 'question': 'What comes after an egg?', 'choices': ['Chick', 'Adult chicken'], 'answer': 'Chick', 'picture': '🐣', 'tip': 'A chick hatches before becoming an adult.'})
+CYCLE = (
+    {"question": "What comes after an egg?", "choices": ["Chick", "Adult chicken"], "answer": "Chick",
+     "first": "Egg", "next": "Chick", "later": "Hen",
+     "first_pic": "🥚", "next_pic": "🐣", "later_pic": "🐔",
+     "kid_tip": "A chick hatches before becoming an adult.",
+     "tip": "Egg, then chick, then hen. That order is a life cycle.", "picture": "🐣"},
+    {"question": "What comes last, after the chick?", "choices": ["Hen", "Egg again first"], "answer": "Hen",
+     "first": "Egg", "next": "Chick", "later": "Hen",
+     "first_pic": "🥚", "next_pic": "🐣", "later_pic": "🐔",
+     "kid_tip": "The hen comes after the chick.", "tip": "The adult comes last in this order.", "picture": "🐔"},
+    {"question": "What comes after a tadpole?", "choices": ["Frog", "Egg first again"], "answer": "Frog",
+     "first": "Egg", "next": "Tadpole", "later": "Frog",
+     "first_pic": "🥚", "next_pic": "🐟", "later_pic": "🐸",
+     "kid_tip": "A tadpole grows into a frog.", "tip": "Egg, tadpole, frog.", "picture": "🐸"},
+    {"question": "What comes first for a frog?", "choices": ["Egg", "Frog"], "answer": "Egg",
+     "first": "Egg", "next": "Tadpole", "later": "Frog",
+     "first_pic": "🥚", "next_pic": "🐟", "later_pic": "🐸",
+     "kid_tip": "The egg comes first.", "tip": "A life cycle has an order.", "picture": "🥚"},
+    {"question": "What comes after a caterpillar?", "choices": ["Butterfly", "Leaf"], "answer": "Butterfly",
+     "first": "Egg", "next": "Caterpillar", "later": "Butterfly",
+     "first_pic": "🥚", "next_pic": "🐛", "later_pic": "🦋",
+     "kid_tip": "A caterpillar becomes a butterfly.", "tip": "Egg, caterpillar, butterfly.", "picture": "🦋"},
+    {"question": "What comes first for a butterfly?", "choices": ["Egg", "Butterfly"], "answer": "Egg",
+     "first": "Egg", "next": "Caterpillar", "later": "Butterfly",
+     "first_pic": "🥚", "next_pic": "🐛", "later_pic": "🦋",
+     "kid_tip": "The egg comes first.", "tip": "Keep the order.", "picture": "🥚"},
+    {"question": "What comes after a seed?", "choices": ["Sprout", "Full tree first"], "answer": "Sprout",
+     "first": "Seed", "next": "Sprout", "later": "Tree",
+     "first_pic": "🌱", "next_pic": "🌿", "later_pic": "🌳",
+     "kid_tip": "A seed grows into a sprout first.", "tip": "Seed, sprout, tree.", "picture": "🌱"},
+    {"question": "What comes last after the sprout?", "choices": ["Tree", "Seed again first"], "answer": "Tree",
+     "first": "Seed", "next": "Sprout", "later": "Tree",
+     "first_pic": "🌱", "next_pic": "🌿", "later_pic": "🌳",
+     "kid_tip": "The tree comes after the sprout.", "tip": "The grown plant comes later.", "picture": "🌳"},
+    {"question": "What comes after a puppy?", "choices": ["Dog", "Bone"], "answer": "Dog",
+     "first": "Puppy", "next": "Young dog", "later": "Dog",
+     "first_pic": "🐶", "next_pic": "🐕", "later_pic": "🦮",
+     "kid_tip": "A puppy grows into a dog.", "tip": "Living things change as they grow.", "picture": "🐶"},
+    {"question": "What comes first for a chicken story?", "choices": ["Egg", "Hen"], "answer": "Egg",
+     "first": "Egg", "next": "Chick", "later": "Hen",
+     "first_pic": "🥚", "next_pic": "🐣", "later_pic": "🐔",
+     "kid_tip": "Start with the egg.", "tip": "Egg, then chick, then hen.", "picture": "🥚"},
+)
 
-def run_day_and_night_animals() -> None:
-    run_game({'id': 'living_things_advanced_day_and_night_animals', 'title': 'Day and Night Animals', 'tagline': 'Which animal is awake at night?', 'question': 'Which animal is awake at night?', 'choices': ['Owl', 'Butterfly'], 'answer': 'Owl', 'picture': '🦉', 'tip': 'Many owls are active at night.'})
+NIGHT = (
+    {"a": "Owl", "b": "Butterfly", "a_pic": "🦉", "b_pic": "🦋", "a_move": "bob", "b_move": "still",
+     "kid_tip": "An owl is awake at night. A butterfly likes day.",
+     "tip": "Many owls are active at night."},
+    {"a": "Bat", "b": "Robin", "a_pic": "🦇", "b_pic": "🐦", "a_move": "wiggle", "b_move": "still",
+     "kid_tip": "A bat is a night flier. A robin likes day.",
+     "tip": "Some animals are awake at night."},
+    {"a": "Moth", "b": "Honeybee", "a_pic": "🦋", "b_pic": "🐝", "a_move": "wiggle", "b_move": "still",
+     "kid_tip": "A moth often flies at night. A bee likes day flowers.",
+     "tip": "Night and day animals are different."},
+    {"a": "Raccoon", "b": "Squirrel", "a_pic": "🦝", "b_pic": "🐿️", "a_move": "hop", "b_move": "still",
+     "kid_tip": "A raccoon often comes out at night.", "tip": "Some animals wake at night."},
+    {"a": "Firefly", "b": "Dragonfly", "a_pic": "✨", "b_pic": "🪰", "a_move": "wiggle", "b_move": "still",
+     "kid_tip": "A firefly glows at night.", "tip": "Night animals come out after dark."},
+    {"a": "Cat at night", "b": "Rooster", "a_pic": "🐱", "b_pic": "🐓", "a_move": "hop", "b_move": "still",
+     "kid_tip": "A cat may roam at night. A rooster crows in the morning.",
+     "tip": "Day animals wake with the sun."},
+    {"a": "Fox at dusk", "b": "Butterfly", "a_pic": "🦊", "b_pic": "🦋", "a_move": "bob", "b_move": "still",
+     "kid_tip": "A fox may hunt at dusk and night.", "tip": "Some animals are awake at night."},
+    {"a": "Mouse at night", "b": "Songbird", "a_pic": "🐭", "b_pic": "🐦", "a_move": "hop", "b_move": "still",
+     "kid_tip": "A mouse may come out at night.", "tip": "Night animals hide in the day."},
+    {"a": "Hedgehog", "b": "Lizard in sun", "a_pic": "🦔", "b_pic": "🦎", "a_move": "wiggle", "b_move": "still",
+     "kid_tip": "A hedgehog often wakes at night. A lizard likes sun.",
+     "tip": "Some animals are night animals."},
+    {"a": "Night frog", "b": "Day butterfly", "a_pic": "🐸", "b_pic": "🦋", "a_move": "hop", "b_move": "still",
+     "kid_tip": "Some frogs sing at night.", "tip": "Night and day animals take turns."},
+)
 
-def run_help_it_grow() -> None:
-    run_game({'id': 'living_things_advanced_help_it_grow', 'title': 'Help It Grow', 'tagline': 'Plant is pale. What should change?', 'question': 'Plant is pale. What should change?', 'choices': ['Give light', 'Hide in dark'], 'answer': 'Give light', 'picture': '🪴', 'tip': 'Plants use light to help make food.'})
+GROW = (
+    {"a": "Give light", "b": "Hide in dark", "a_pic": "☀️", "b_pic": "🌑", "a_move": "grow", "b_move": "still",
+     "kid_tip": "A pale plant needs light, not a dark hide.",
+     "tip": "Plants use light to help make food."},
+    {"a": "Move to a window", "b": "Shut in a closet", "a_pic": "🪟", "b_pic": "🚪", "a_move": "grow", "b_move": "still",
+     "kid_tip": "A window gives light.", "tip": "Plants need light to grow well."},
+    {"a": "Open the curtains", "b": "Close the box", "a_pic": "🪟", "b_pic": "📦", "a_move": "grow", "b_move": "still",
+     "kid_tip": "Open curtains help.", "tip": "Light helps a pale plant."},
+    {"a": "Sun on the leaves", "b": "Blanket over the pot", "a_pic": "🌞", "b_pic": "🛏️", "a_move": "grow", "b_move": "still",
+     "kid_tip": "Sun on the leaves helps.", "tip": "Do not hide a pale plant."},
+    {"a": "Lamp for plants", "b": "Drawer", "a_pic": "💡", "b_pic": "🗄️", "a_move": "grow", "b_move": "still",
+     "kid_tip": "A lamp can help if sun is gone.", "tip": "Plants still need light."},
+    {"a": "Turn the pot to the sun", "b": "Push it under the bed", "a_pic": "🪴", "b_pic": "🛏️", "a_move": "grow", "b_move": "still",
+     "kid_tip": "Turn the pot toward the sun.", "tip": "Light should reach the leaves."},
+    {"a": "Clear a shady pile", "b": "Add more shade", "a_pic": "🌿", "b_pic": "⬛", "a_move": "grow", "b_move": "still",
+     "kid_tip": "Clear shade so light can reach it.", "tip": "Pale plants need more light."},
+    {"a": "Sit by a window", "b": "Sit in a cave", "a_pic": "🪟", "b_pic": "🕳️", "a_move": "grow", "b_move": "still",
+     "kid_tip": "A window is better than a cave.", "tip": "Plants need light."},
+    {"a": "Morning sun", "b": "Closed lid", "a_pic": "🌄", "b_pic": "📦", "a_move": "grow", "b_move": "still",
+     "kid_tip": "Morning sun helps.", "tip": "A lid blocks light."},
+    {"a": "Take off the dark bag", "b": "Keep the dark bag", "a_pic": "🛍️", "b_pic": "🌑", "a_move": "grow", "b_move": "still",
+     "kid_tip": "Take the bag off so light can reach it.",
+     "tip": "Plants need light to grow well."},
+)
+
+run_life_cycle_order = step_game(
+    game_id="living_things_advanced_life_cycle_order",
+    title="Life Cycle Order",
+    tagline="What comes next? What comes last?",
+    picture="🐣",
+    rows=CYCLE,
+    scene="first_then_next",
+    tip="A chick hatches before becoming an adult.",
+)
+
+run_day_and_night_animals = compare_game(
+    game_id="living_things_advanced_day_and_night_animals",
+    title="Day and Night Animals",
+    tagline="Who is awake at night? Who likes day?",
+    picture="🦉",
+    pairs=NIGHT,
+    q_for_a="Which animal is awake at night?",
+    q_for_b="Which animal likes the day?",
+    tip="Many owls are active at night.",
+)
+
+run_help_it_grow = compare_game(
+    game_id="living_things_advanced_help_it_grow",
+    title="Help It Grow",
+    tagline="What should change? What makes it worse?",
+    picture="🪴",
+    pairs=GROW,
+    q_for_a="Plant is pale. What should change?",
+    q_for_b="What makes the pale plant worse?",
+    tip="Plants use light to help make food.",
+)

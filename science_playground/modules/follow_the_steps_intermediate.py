@@ -1,16 +1,164 @@
-"""Three playable science games."""
+"""Follow the Steps — Intermediate: 10 examples per game."""
 from __future__ import annotations
 import sys
 from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
-if str(_ROOT) not in sys.path: sys.path.insert(0, str(_ROOT))
-from science_utils import run_game
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+from pair_trials import step_game
 
-def run_three_step_robot() -> None:
-    run_game({'id': 'follow_the_steps_intermediate_three_step_robot', 'title': 'Three-Step Robot', 'tagline': 'Forward, turn, then what?', 'question': 'Forward, turn, then what?', 'choices': ['Forward', 'Sleep'], 'answer': 'Forward', 'picture': '🤖', 'tip': 'The robot follows each step in order.'})
+ROBOT = (
+    {"question": "Forward, turn, then what?", "choices": ["Forward", "Sleep"], "answer": "Forward",
+     "first": "Forward", "next": "Turn", "later": "Forward",
+     "first_pic": "⬆️", "next_pic": "↪️", "later_pic": "⬆️",
+     "kid_tip": "The robot keeps the steps in order: forward, turn, forward.",
+     "tip": "The robot follows each step in order.", "picture": "🤖"},
+    {"question": "Forward, turn, what is extra?", "choices": ["Sleep", "Forward"], "answer": "Sleep",
+     "first": "Forward", "next": "Turn", "later": "Sleep",
+     "first_pic": "⬆️", "next_pic": "↪️", "later_pic": "😴",
+     "kid_tip": "Sleep is not the next robot step.", "tip": "Keep the next step in the same job.", "picture": "🤖"},
+    {"question": "Hop, clap, then what?", "choices": ["Hop", "Nap"], "answer": "Hop",
+     "first": "Hop", "next": "Clap", "later": "Hop",
+     "first_pic": "🐰", "next_pic": "👏", "later_pic": "🐰",
+     "kid_tip": "The card says hop, clap, hop.", "tip": "Do the steps in order.", "picture": "🤖"},
+    {"question": "Hop, clap, what is extra?", "choices": ["Nap", "Hop"], "answer": "Nap",
+     "first": "Hop", "next": "Clap", "later": "Nap",
+     "first_pic": "🐰", "next_pic": "👏", "later_pic": "😴",
+     "kid_tip": "Nap is extra.", "tip": "Skip the extra step.", "picture": "🤖"},
+    {"question": "Left, right, then what?", "choices": ["Left", "Paint"], "answer": "Left",
+     "first": "Left", "next": "Right", "later": "Left",
+     "first_pic": "⬅️", "next_pic": "➡️", "later_pic": "⬅️",
+     "kid_tip": "Left, right, left stays in the dance.", "tip": "Keep the pattern.", "picture": "🤖"},
+    {"question": "Left, right, what is extra?", "choices": ["Paint", "Left"], "answer": "Paint",
+     "first": "Left", "next": "Right", "later": "Paint",
+     "first_pic": "⬅️", "next_pic": "➡️", "later_pic": "🎨",
+     "kid_tip": "Paint is extra.", "tip": "Keep the next step in the same job.", "picture": "🤖"},
+    {"question": "Push, turn, then what?", "choices": ["Push", "Snack"], "answer": "Push",
+     "first": "Push", "next": "Turn", "later": "Push",
+     "first_pic": "🫷", "next_pic": "↪️", "later_pic": "🫷",
+     "kid_tip": "Push, turn, push.", "tip": "Do the steps in order.", "picture": "🤖"},
+    {"question": "Push, turn, what is extra?", "choices": ["Snack", "Push"], "answer": "Snack",
+     "first": "Push", "next": "Turn", "later": "Snack",
+     "first_pic": "🫷", "next_pic": "↪️", "later_pic": "🍪",
+     "kid_tip": "Snack is extra.", "tip": "Skip the extra step.", "picture": "🤖"},
+    {"question": "Go, stop, then what?", "choices": ["Go", "Fly a kite"], "answer": "Go",
+     "first": "Go", "next": "Stop", "later": "Go",
+     "first_pic": "🟢", "next_pic": "🛑", "later_pic": "🟢",
+     "kid_tip": "Go, stop, go.", "tip": "The robot follows each step.", "picture": "🤖"},
+    {"question": "Go, stop, what is extra?", "choices": ["Fly a kite", "Go"], "answer": "Fly a kite",
+     "first": "Go", "next": "Stop", "later": "Kite",
+     "first_pic": "🟢", "next_pic": "🛑", "later_pic": "🪁",
+     "kid_tip": "A kite is extra.", "tip": "Keep the next step in the same job.", "picture": "🤖"},
+)
 
-def run_if_red_then_stop() -> None:
-    run_game({'id': 'follow_the_steps_intermediate_if_red_then_stop', 'title': 'If Red, Then Stop', 'tagline': 'The light turns red. Do what?', 'question': 'The light turns red. Do what?', 'choices': ['Stop', 'Go'], 'answer': 'Stop', 'picture': '🚦', 'tip': 'The if-then rule says red means stop.'})
+IFTHEN = (
+    {"question": "The light turns red. Do what?", "choices": ["Stop", "Go"], "answer": "Stop",
+     "first": "See red", "next": "Then stop", "later": "Wait",
+     "first_pic": "🔴", "next_pic": "🛑", "later_pic": "⏳",
+     "kid_tip": "If red, then stop.", "tip": "The if-then rule says red means stop.", "picture": "🚦"},
+    {"question": "The light turns green. Do what?", "choices": ["Go", "Stop"], "answer": "Go",
+     "first": "See green", "next": "Then go", "later": "Drive",
+     "first_pic": "🟢", "next_pic": "🚗", "later_pic": "➡️",
+     "kid_tip": "If green, then go.", "tip": "If-then is a rule: if this, then that.", "picture": "🚦"},
+    {"question": "The card is red. Do what?", "choices": ["Stop", "Clap"], "answer": "Stop",
+     "first": "Red card", "next": "Stop", "later": "Wait",
+     "first_pic": "🟥", "next_pic": "🛑", "later_pic": "✋",
+     "kid_tip": "Red means stop.", "tip": "Follow the if-then rule.", "picture": "🚦"},
+    {"question": "The card is green. Do what?", "choices": ["Go", "Sit"], "answer": "Go",
+     "first": "Green card", "next": "Go", "later": "Walk",
+     "first_pic": "🟩", "next_pic": "🚶", "later_pic": "➡️",
+     "kid_tip": "Green means go.", "tip": "If green, then go.", "picture": "🚦"},
+    {"question": "If the sock is red, then hop. The sock is red. Do what?",
+     "choices": ["Hop", "Skip the hop"], "answer": "Hop",
+     "first": "Red sock", "next": "Hop", "later": "Smile",
+     "first_pic": "🧦", "next_pic": "🐰", "later_pic": "😊",
+     "kid_tip": "The sock is red, so hop.", "tip": "If this, then that.", "picture": "🚦"},
+    {"question": "If the sock is blue, then sit. The sock is green. Do what?",
+     "choices": ["Do not sit", "Sit anyway"], "answer": "Do not sit",
+     "first": "Green sock", "next": "Not blue", "later": "Keep going",
+     "first_pic": "🧦", "next_pic": "🚫", "later_pic": "➡️",
+     "kid_tip": "The sock is not blue, so do not sit.", "tip": "The if part must match.", "picture": "🚦"},
+    {"question": "If wet, then towel. The grass is wet. Do what?",
+     "choices": ["Towel", "Skip the towel"], "answer": "Towel",
+     "first": "Wet grass", "next": "Towel", "later": "Dry",
+     "first_pic": "🌧️", "next_pic": "🧻", "later_pic": "✨",
+     "kid_tip": "Wet means use a towel.", "tip": "If wet, then towel.", "picture": "🚦"},
+    {"question": "If yellow, then wait. The light is yellow. Do what?",
+     "choices": ["Wait", "Speed up"], "answer": "Wait",
+     "first": "Yellow", "next": "Wait", "later": "Look",
+     "first_pic": "🟡", "next_pic": "✋", "later_pic": "👀",
+     "kid_tip": "Yellow means wait.", "tip": "Follow the rule.", "picture": "🚦"},
+    {"question": "If the bell rings, then line up. The bell rings. Do what?",
+     "choices": ["Line up", "Run away"], "answer": "Line up",
+     "first": "Bell", "next": "Line up", "later": "Ready",
+     "first_pic": "🔔", "next_pic": "🧍", "later_pic": "✅",
+     "kid_tip": "The bell rang, so line up.", "tip": "If the bell, then line up.", "picture": "🚦"},
+    {"question": "If the light is red, then stop. The light is red. Do what?",
+     "choices": ["Stop", "Go"], "answer": "Stop",
+     "first": "Red light", "next": "Stop", "later": "Wait",
+     "first_pic": "🚦", "next_pic": "🛑", "later_pic": "⏳",
+     "kid_tip": "Red means stop.", "tip": "The if-then rule says red means stop.", "picture": "🚦"},
+)
 
-def run_repeat_3_times() -> None:
-    run_game({'id': 'follow_the_steps_intermediate_repeat_3_times', 'title': 'Repeat 3 Times', 'tagline': 'Tap repeats three times. How many?', 'question': 'Tap repeats three times. How many?', 'choices': ['3', '1', '5'], 'answer': '3', 'picture': '🔁', 'tip': 'A loop repeats the action three times.'})
+REPEAT = (
+    {"question": "Tap repeats three times. How many taps?", "choices": ["3", "1"], "answer": "3",
+     "action": "Tap", "action_pic": "👆", "kid_tip": "Three means tap, tap, tap.",
+     "tip": "A loop repeats the action three times.", "picture": "🔁"},
+    {"question": "Tap repeats three times. Which number is extra?", "choices": ["5", "3"], "answer": "5",
+     "action": "Tap", "action_pic": "👆", "kid_tip": "Five is more than the loop says.",
+     "tip": "The card says three, not five.", "picture": "🔁"},
+    {"question": "Clap repeats three times. How many claps?", "choices": ["3", "1"], "answer": "3",
+     "action": "Clap", "action_pic": "👏", "kid_tip": "Clap three times.",
+     "tip": "A loop repeats a step a number of times.", "picture": "🔁"},
+    {"question": "Clap repeats three times. Which number is extra?", "choices": ["1", "3"], "answer": "1",
+     "action": "Clap", "action_pic": "👏", "kid_tip": "One is too few.",
+     "tip": "Three means more than one.", "picture": "🔁"},
+    {"question": "Hop repeats three times. How many hops?", "choices": ["3", "8"], "answer": "3",
+     "action": "Hop", "action_pic": "🐰", "kid_tip": "Hop three times.",
+     "tip": "The loop number is three.", "picture": "🔁"},
+    {"question": "Hop repeats three times. Which number is extra?", "choices": ["8", "3"], "answer": "8",
+     "action": "Hop", "action_pic": "🐰", "kid_tip": "Eight is extra.",
+     "tip": "Stay with three.", "picture": "🔁"},
+    {"question": "Stomp repeats three times. How many stomps?", "choices": ["3", "2"], "answer": "3",
+     "action": "Stomp", "action_pic": "👟", "kid_tip": "Stomp three times.",
+     "tip": "Repeat 3 times means three.", "picture": "🔁"},
+    {"question": "Stomp repeats three times. Which number is extra?", "choices": ["2", "3"], "answer": "2",
+     "action": "Stomp", "action_pic": "👟", "kid_tip": "Two is too few.",
+     "tip": "The card says three.", "picture": "🔁"},
+    {"question": "Spin repeats three times. How many spins?", "choices": ["3", "0"], "answer": "3",
+     "action": "Spin", "action_pic": "💫", "kid_tip": "Spin three times.",
+     "tip": "Zero would skip the loop.", "picture": "🔁"},
+    {"question": "Spin repeats three times. Which number is extra?", "choices": ["0", "3"], "answer": "0",
+     "action": "Spin", "action_pic": "💫", "kid_tip": "Zero is extra.",
+     "tip": "The loop still happens three times.", "picture": "🔁"},
+)
+
+run_three_step_robot = step_game(
+    game_id="follow_the_steps_intermediate_three_step_robot",
+    title="Three-Step Robot",
+    tagline="Forward, turn, then what? What is extra?",
+    picture="🤖",
+    rows=ROBOT,
+    scene="first_then_next",
+    tip="The robot follows each step in order.",
+)
+
+run_if_red_then_stop = step_game(
+    game_id="follow_the_steps_intermediate_if_red_then_stop",
+    title="If Red, Then Stop",
+    tagline="Follow the if-then rule.",
+    picture="🚦",
+    rows=IFTHEN,
+    scene="first_then_next",
+    tip="The if-then rule says red means stop.",
+)
+
+run_repeat_3_times = step_game(
+    game_id="follow_the_steps_intermediate_repeat_3_times",
+    title="Repeat 3 Times",
+    tagline="How many? Which number is extra?",
+    picture="🔁",
+    rows=REPEAT,
+    scene="do_it_again",
+    tip="A loop repeats the action three times.",
+)
