@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT))
 from lessons.catalog import validate_catalog
 from pair_trials import flip_two_choice, named_trials, step_trials
 from picture_scenes import EXTRA_SCENES
-from science_utils import _BESPOKE_GAMES, _with_discovery_trials
+from science_utils import _BESPOKE_GAMES, _with_discovery_trials, run_game
 
 from modules import follow_the_steps_advanced as fts_adv
 from modules import follow_the_steps_beginner as fts_beg
@@ -102,7 +102,6 @@ STEP_BANKS = (
 NAMED_BANKS = (
     ("make_test_beginner_will_the_tower_fall", make_beg.TOWERS, "tower_fall", "Which tower will stay up?", "Which tower will fall?"),
     ("make_test_beginner_ramp_or_wall", make_beg.RAMPS, "ramp_or_wall", "Which helps it roll down?", "Which stops it?"),
-    ("make_test_beginner_fit_the_hole", make_beg.HOLES, "fit_the_hole", "Which shape fits the round hole?", "Which shape does not fit?"),
 )
 
 
@@ -114,6 +113,7 @@ def _all_banks() -> list[tuple[str, tuple]]:
         banks.append((game_id, step_trials(rows, scene)))
     for game_id, rows, scene, q_a, q_b in NAMED_BANKS:
         banks.append((game_id, named_trials(rows, scene, q_a, q_b)))
+    banks.append(("make_test_beginner_fit_the_hole", make_beg.hole_trials()))
     return banks
 
 
@@ -199,3 +199,93 @@ def test_tower_fall_stays_still_until_the_answer() -> None:
     assert "animation:tip" in play
     import inspect
     assert "on_answer" in inspect.getsource(make_beg.run_will_the_tower_fall)
+
+
+def test_tower_rounds_use_matching_pictures() -> None:
+    kinds = [row["tower_kind"] for row in make_beg.TOWERS]
+    assert len(kinds) == 10
+    assert len(set(kinds)) == 10
+    books = EXTRA_SCENES["tower_fall"](
+        2, {"wide": "Big book down", "tiny": "Tiny book down", "tower_kind": "books"}, pose="start",
+    )
+    assert "kind-books" in books
+    assert 'class="book"' in books
+    assert "Tiny book down" in books
+    cups = EXTRA_SCENES["tower_fall"](
+        1, {"wide": "Wide cups", "tiny": "Pointy cups", "tower_kind": "cups"}, pose="start",
+    )
+    assert "kind-cups" in cups
+    assert 'class="cup"' in cups
+    sand = EXTRA_SCENES["tower_fall"](
+        6, {"wide": "Wide sandcastle", "tiny": "Skinny sandcastle", "tower_kind": "sand"}, pose="start",
+    )
+    assert "kind-sand" in sand
+    assert "keep" in sand
+
+
+def test_ramp_rounds_use_matching_pictures_and_roll_downhill() -> None:
+    kinds = [row["ramp_kind"] for row in make_beg.RAMPS]
+    assert len(kinds) == 10
+    assert len(set(kinds)) == 10
+    markers = {
+        "board": "wood-face",
+        "slide": "slide-face",
+        "hill": "hill-mound",
+        "door": "blocker door",
+        "playground": "ladder",
+        "driveway": "drive-face",
+        "book": "book-face",
+        "cardboard": "card-face",
+        "wedge": "wedge-body",
+        "stairs": "step s1",
+    }
+    for row in make_beg.RAMPS:
+        html = EXTRA_SCENES["ramp_or_wall"](0, row, pose="start")
+        assert f'kind-{row["ramp_kind"]}' in html
+        assert markers[row["ramp_kind"]] in html
+        assert row["path"] in html and row["block"] in html
+    books = EXTRA_SCENES["ramp_or_wall"](
+        6, {"path": "Book ramp", "block": "Book wall", "ramp_kind": "book"}, pose="play",
+    )
+    assert "book-wall" in books
+    play = EXTRA_SCENES["ramp_or_wall"](
+        0, {"path": "Ramp", "block": "Wall", "ramp_kind": "board"}, pose="play",
+    )
+    idle = EXTRA_SCENES["ramp_or_wall"](
+        0, {"path": "Ramp", "block": "Wall", "ramp_kind": "board"}, pose="idle",
+    )
+    assert "rollDown" in play
+    assert 'class="stage pose-start"' in idle
+    assert "bottom:110px" in play and "bottom:14px" in play
+    assert "rotate(30deg)" in play
+    assert "rotate(-31deg)" not in play
+    import inspect
+    assert "on_answer" in inspect.getsource(make_beg.run_ramp_or_wall)
+
+
+def test_fit_the_hole_mixes_circle_and_square_and_waits() -> None:
+    trials = make_beg.hole_trials()
+    holes = [trial["hole"] for trial in trials]
+    assert holes.count("circle") >= 3
+    assert holes.count("square") >= 3
+    assert holes[0] != holes[1]
+    assert any(trial["hole"] == "square" and trial["answer"] in (trial["b"], trial["a"]) for trial in trials)
+    square_fit = next(trial for trial in trials if trial["hole"] == "square" and "fits the square" in trial["question"])
+    assert square_fit["answer"] == square_fit["b"]
+    circle = EXTRA_SCENES["fit_the_hole"](0, trials[0], pose="start")
+    assert "hole-circle" in circle
+    assert "art-circle" in circle
+    assert 'class="stage pose-start"' in circle
+    square = EXTRA_SCENES["fit_the_hole"](1, trials[1], pose="idle")
+    assert "hole-square" in square
+    assert "art-cracker" in square
+    assert 'class="stage pose-start"' in square
+    play = EXTRA_SCENES["fit_the_hole"](1, trials[1], pose="play")
+    assert "dropIn" in play
+    assert "art-cracker" in play and "fit" in play
+    import inspect
+    source = inspect.getsource(make_beg.run_fit_the_hole)
+    assert "on_answer" in source
+    engine = inspect.getsource(run_game)
+    assert 'pending.get("painted")' in engine
+    assert "phase" in engine and "overlay" in engine
