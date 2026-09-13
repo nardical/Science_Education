@@ -26,6 +26,8 @@ def _page(inner_css: str, inner_html: str, aria: str, extra_stage: str = "", rou
 
 def _pose(kwargs: dict) -> str:
     pose = str(kwargs.get("pose") or "play")
+    if pose == "idle":
+        return "start"
     return pose if pose in ("start", "play", "end") else "play"
 
 
@@ -507,6 +509,15 @@ def _scene_steps(round_no: int, spec: dict | None = None, **kwargs) -> str:
     for i, step in enumerate(list(steps)[:3]):
         miss = " miss" if step.get("missing") else ""
         left = (8 + i * 31) if count == 3 else (18 + i * 38)
+        hide_missing = bool(step.get("missing")) and pose not in ("play", "end")
+        if hide_missing:
+            cards += (
+                f'<div class="card miss hidden" style="left:{left}%">'
+                f"<b>?</b>"
+                f'<span class="pic">❓</span>'
+                f'<span class="blank">?</span></div>'
+            )
+            continue
         art = _step_art(str(step.get("art") or ""))
         picture = art or f'<span class="pic">{html.escape(str(step.get("pic") or ""))}</span>'
         cards += (

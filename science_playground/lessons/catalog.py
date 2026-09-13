@@ -506,7 +506,7 @@ _BEGINNER_STEPS = {
                 "one": "Wash", "two": "Dry", "missing": "Put away",
                 "one_pic": "🧼", "two_pic": "💨", "missing_pic": "🧺",
             },
-            look_pose="play",
+            look_pose="start",
         ),
         _scene(
             "Do It Again",
