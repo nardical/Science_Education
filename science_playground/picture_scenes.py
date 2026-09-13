@@ -473,6 +473,26 @@ def _scene_compare(round_no: int, spec: dict | None = None, **kwargs) -> str:
     return _page(css, body, aria, f"pose-{pose}", round_no=round_no)
 
 
+def _step_art(kind: str) -> str:
+    if kind == "car-seat":
+        return (
+            '<div class="car-seat" aria-hidden="true">'
+            '<div class="seat-back"></div><div class="seat-base"></div>'
+            '<div class="kid-body"></div><div class="kid-head"></div>'
+            "</div>"
+        )
+    if kind == "seatbelt":
+        return (
+            '<div class="car-seat belted" aria-hidden="true">'
+            '<div class="seat-back"></div><div class="seat-base"></div>'
+            '<div class="kid-body"></div><div class="kid-head"></div>'
+            '<div class="belt-shoulder"></div><div class="belt-lap"></div>'
+            '<div class="belt-buckle"></div>'
+            "</div>"
+        )
+    return ""
+
+
 def _scene_steps(round_no: int, spec: dict | None = None, **kwargs) -> str:
     spec = spec or {}
     pose = _pose(kwargs)
@@ -487,10 +507,12 @@ def _scene_steps(round_no: int, spec: dict | None = None, **kwargs) -> str:
     for i, step in enumerate(list(steps)[:3]):
         miss = " miss" if step.get("missing") else ""
         left = (8 + i * 31) if count == 3 else (18 + i * 38)
+        art = _step_art(str(step.get("art") or ""))
+        picture = art or f'<span class="pic">{html.escape(str(step.get("pic") or ""))}</span>'
         cards += (
             f'<div class="card{miss}" style="left:{left}%">'
             f'<b>{html.escape(str(step.get("n") or i + 1))}</b>'
-            f'<span class="pic">{html.escape(str(step.get("pic") or ""))}</span>'
+            f"{picture}"
             f'<span>{html.escape(str(step.get("label") or ""))}</span></div>'
         )
     css = """
@@ -500,6 +522,16 @@ def _scene_steps(round_no: int, spec: dict | None = None, **kwargs) -> str:
     .card b{display:block;font-size:28px;margin-top:10px}
     .card .pic{display:block;font-size:42px;margin-top:8px}
     .card span{display:block;margin-top:8px;font-size:18px}
+    .car-seat{position:relative;width:58px;height:70px;margin:6px auto 0}
+    .seat-back{position:absolute;left:12px;top:0;width:34px;height:44px;background:#457b9d;border-radius:12px 12px 4px 4px}
+    .seat-base{position:absolute;left:4px;bottom:2px;width:50px;height:18px;background:#1d3557;border-radius:8px}
+    .kid-head{position:absolute;left:20px;top:8px;width:18px;height:18px;background:#f4a261;border-radius:50%}
+    .kid-body{position:absolute;left:18px;top:24px;width:22px;height:24px;background:#2a9d8f;border-radius:8px}
+    .belt-shoulder{position:absolute;left:16px;top:6px;width:8px;height:46px;background:#e63946;
+      transform:rotate(-32deg);border-radius:4px;z-index:2}
+    .belt-lap{position:absolute;left:8px;bottom:16px;width:42px;height:8px;background:#e63946;border-radius:4px;z-index:2}
+    .belt-buckle{position:absolute;left:22px;bottom:12px;width:16px;height:12px;background:#ffd166;
+      border:2px solid #bc6c25;border-radius:3px;box-sizing:border-box;z-index:3}
     .miss{border-style:dashed;border-color:#e63946;background:#fff5f5}
     .pose-play .card,.pose-end .card{animation:pop 0.7s ease-out forwards}
     .pose-play .miss,.pose-end .miss{animation:blink 1s ease-in-out infinite}
@@ -603,9 +635,12 @@ def _scene_first_then_next(round_no: int, spec: dict | None = None, **kwargs) ->
     return _scene_steps(round_no, {
         "steps_title": spec.get("steps_title") or "First, then next",
         "steps": (
-            {"n": "1", "label": spec.get("first") or "Socks", "pic": spec.get("first_pic") or "🧦"},
-            {"n": "2", "label": spec.get("next") or "Shoes", "pic": spec.get("next_pic") or "👟"},
-            {"n": "3", "label": spec.get("later") or "Hat", "pic": spec.get("later_pic") or "🎩"},
+            {"n": "1", "label": spec.get("first") or "Socks", "pic": spec.get("first_pic") or "🧦",
+             "art": spec.get("first_art")},
+            {"n": "2", "label": spec.get("next") or "Shoes", "pic": spec.get("next_pic") or "👟",
+             "art": spec.get("next_art")},
+            {"n": "3", "label": spec.get("later") or "Hat", "pic": spec.get("later_pic") or "🎩",
+             "art": spec.get("later_art")},
         ),
     }, **kwargs)
 
