@@ -1056,6 +1056,12 @@ def run_game(spec: dict) -> None:
         if animate_mode == "on_answer" and pending.get("phase") != "overlay":
             motion = str(spec["answer"]).lower()
             show_scene(spec, round_no, pose="play", motion=motion)
+            clear_feedback_overlay()
+            # Paint the reveal first so the kid can see it, then the box.
+            if not pending.get("painted"):
+                st.session_state[key + "_pending"] = {**pending, "painted": True}
+                st.rerun()
+                return
             time.sleep(float(spec.get("anim_seconds", ANIM_SECONDS)))
             st.session_state[key + "_pending"] = {**pending, "phase": "overlay"}
             st.rerun()

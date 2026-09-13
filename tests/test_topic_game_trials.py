@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT))
 from lessons.catalog import validate_catalog
 from pair_trials import flip_two_choice, named_trials, step_trials
 from picture_scenes import EXTRA_SCENES
-from science_utils import _BESPOKE_GAMES, _with_discovery_trials
+from science_utils import _BESPOKE_GAMES, _with_discovery_trials, run_game
 
 from modules import follow_the_steps_advanced as fts_adv
 from modules import follow_the_steps_beginner as fts_beg
@@ -186,3 +186,19 @@ def test_compare_and_step_scenes_use_names_not_giveaway_tags() -> None:
     )
     assert "Ice" in melt
     assert "it melts" not in melt
+
+
+def test_missing_step_hides_the_answer_until_a_tap() -> None:
+    spec = fts_beg.MISSING[0]
+    idle = EXTRA_SCENES["missing_step"](0, spec, pose="idle")
+    start = EXTRA_SCENES["missing_step"](0, spec, pose="start")
+    play = EXTRA_SCENES["missing_step"](0, spec, pose="play")
+    assert "Put away" not in idle and "🧺" not in idle
+    assert "Put away" not in start and "🧺" not in start
+    assert 'class="card miss hidden"' in start
+    assert "❓" in start
+    assert "Put away" in play and "🧺" in play
+    assert "Wash" in start and "Dry" in start
+    import inspect
+    assert "on_answer" in inspect.getsource(fts_beg.run_which_step_is_missing)
+    assert 'pending.get("painted")' in inspect.getsource(run_game)
