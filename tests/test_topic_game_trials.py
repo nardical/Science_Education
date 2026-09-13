@@ -202,3 +202,25 @@ def test_missing_step_hides_the_answer_until_a_tap() -> None:
     import inspect
     assert "on_answer" in inspect.getsource(fts_beg.run_which_step_is_missing)
     assert 'pending.get("painted")' in inspect.getsource(run_game)
+
+
+def test_first_then_next_asks_what_comes_next() -> None:
+    wash = fts_beg.FIRST_NEXT[1]
+    assert wash["question"] == "First wash hands. What comes next?"
+    assert wash["answer"] == "Soap"
+    assert "extra" not in wash["question"].lower()
+    for row in fts_beg.FIRST_NEXT:
+        assert "What comes next?" in row["question"]
+        assert "extra" not in row["question"].lower()
+
+
+def test_first_then_next_car_round_shows_a_seatbelt() -> None:
+    row = fts_beg.FIRST_NEXT[7]
+    assert row["answer"] == "Seatbelt"
+    assert "Buckle" not in row["choices"]
+    assert "sit in the car" in row["question"]
+    html = EXTRA_SCENES["first_then_next"](7, row, pose="start")
+    assert "car-seat" in html
+    assert "belt-buckle" in html
+    assert "Seatbelt" in html
+    assert "🔒" not in html
