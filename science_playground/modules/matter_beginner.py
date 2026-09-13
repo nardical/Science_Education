@@ -60,31 +60,31 @@ MELT_FREEZE = (
      "choices": ["Melt", "Freeze"], "answer": "Melt",
      "kid_tip": "Warm ice melts into water.", "tip": "Heating ice turns it into liquid water."},
     {"stuff": "Puddle", "stuff_pic": "💧", "action": "freeze", "question": "A puddle gets very cold. What happens?",
-     "choices": ["Freeze", "Melt"], "answer": "Freeze",
+     "choices": ["Melt", "Freeze"], "answer": "Freeze",
      "kid_tip": "A very cold puddle can freeze.", "tip": "Cooling water can turn it into ice."},
     {"stuff": "Chocolate", "stuff_pic": "🍫", "action": "melt", "question": "Chocolate gets warm. What happens?",
      "choices": ["Melt", "Freeze"], "answer": "Melt",
      "kid_tip": "Warm chocolate gets soft and melts.", "tip": "Heat can melt chocolate."},
     {"stuff": "Juice", "stuff_pic": "🧃", "action": "freeze", "question": "Juice sits in a freezer. What happens?",
-     "choices": ["Freeze", "Melt"], "answer": "Freeze",
+     "choices": ["Melt", "Freeze"], "answer": "Freeze",
      "kid_tip": "Freezer juice can freeze into a pop.", "tip": "A freezer can freeze juice."},
     {"stuff": "Butter", "stuff_pic": "🧈", "action": "melt", "question": "Butter sits in a warm pan. What happens?",
      "choices": ["Melt", "Freeze"], "answer": "Melt",
      "kid_tip": "Warm butter melts.", "tip": "Heat melts butter."},
     {"stuff": "Ice cube tray", "stuff_pic": "🧊", "action": "freeze", "question": "Water sits in the freezer. What happens?",
-     "choices": ["Freeze", "Melt"], "answer": "Freeze",
+     "choices": ["Melt", "Freeze"], "answer": "Freeze",
      "kid_tip": "The water freezes into cubes.", "tip": "Cold turns water into ice."},
     {"stuff": "Snowman", "stuff_pic": "⛄", "action": "melt", "question": "The sun shines on a snowman. What happens?",
      "choices": ["Melt", "Freeze"], "answer": "Melt",
      "kid_tip": "Sun can melt the snowman.", "tip": "Warmth melts snow."},
     {"stuff": "Pond", "stuff_pic": "🏞️", "action": "freeze", "question": "A winter night gets very cold. What happens to the pond?",
-     "choices": ["Freeze", "Melt"], "answer": "Freeze",
+     "choices": ["Melt", "Freeze"], "answer": "Freeze",
      "kid_tip": "A very cold pond can freeze.", "tip": "Cold can freeze pond water."},
     {"stuff": "Ice cream", "stuff_pic": "🍦", "action": "melt", "question": "Ice cream sits in the sun. What happens?",
      "choices": ["Melt", "Freeze"], "answer": "Melt",
      "kid_tip": "Sun-warmed ice cream melts.", "tip": "Heat melts ice cream."},
     {"stuff": "Wet gloves", "stuff_pic": "🧤", "action": "freeze", "question": "Wet gloves stay outside in the snow. What happens?",
-     "choices": ["Freeze", "Melt"], "answer": "Freeze",
+     "choices": ["Melt", "Freeze"], "answer": "Freeze",
      "kid_tip": "The wet gloves can freeze stiff.", "tip": "Cold can freeze the water in the gloves."},
 )
 
@@ -137,6 +137,7 @@ def run_melt_or_freeze() -> None:
         trial = dict(row)
         trial["scene"] = "melt_or_freeze"
         trial["picture"] = row["stuff_pic"]
+        trial["choices"] = ["Melt", "Freeze"]
         trials.append(trial)
     run_game({
         "id": "matter_beginner_melt_or_freeze",
