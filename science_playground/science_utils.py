@@ -166,10 +166,11 @@ def remember_choice_order(
 ) -> list[str]:
     """Shuffle answer buttons once per question and keep that order on reruns.
 
-    A simple rotate-by-round lined up with games that also flip the question
-    (light/dark, heavier/lighter, faster/slower), so the correct box stayed
-    on one side. A stored shuffle breaks that pattern without jumping around
-    when Streamlit reruns the page.
+    A simple rotate-by-round lined up with games that flip the question
+    (light/dark, heavier/lighter) or that already list the right word first
+    (Melt or Freeze), so the correct box stayed left, right, left, right.
+    A stored shuffle breaks that pattern without jumping around when
+    Streamlit reruns the page.
     """
     stored = store.get(key)
     wanted = list(choices)

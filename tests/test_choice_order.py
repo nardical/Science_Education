@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "science_playground
 
 from modules.forces_stuff_beginner import _heavy_trials
 from modules.light_sound_beginner import _high_trials, _light_trials, _loud_trials
+from modules.matter_beginner import MELT_FREEZE
 from modules.motion_beginner import _fast_slow_trials
 from pair_trials import flip_two_choice, pair_a_left
 from science_utils import remember_choice_order
@@ -24,6 +25,25 @@ def _answer_on_left_after_rotate(trials) -> list[int]:
         _rotated(list(trial["choices"]), i).index(trial["answer"])
         for i, trial in enumerate(trials)
     ]
+
+
+def test_old_rotate_made_melt_or_freeze_alternate_left_right() -> None:
+    """Melt or Freeze listed the right word first, then rotate made L,R,L,R."""
+    sides = _answer_on_left_after_rotate(MELT_FREEZE)
+    assert sides == [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+
+
+def test_melt_or_freeze_shuffle_uses_both_sides() -> None:
+    left = right = 0
+    for i, trial in enumerate(MELT_FREEZE):
+        order = remember_choice_order(
+            {}, f"melt-{i}", list(trial["choices"]), rng=random.Random(i + 23)
+        )
+        if order[0] == trial["answer"]:
+            left += 1
+        else:
+            right += 1
+    assert left > 0 and right > 0
 
 
 def test_old_rotate_pinned_light_dark_and_other_flip_games() -> None:
