@@ -429,8 +429,9 @@ _BEGINNER_MAKE = {
                 "id": "lesson_tower", "scene": "tower_fall", "picture": "🗼",
                 "question": "Which tower will stay up?",
                 "wide": "Wide bottom", "tiny": "Tiny bottom", "wide_left": True,
+                "tower_kind": "blocks",
             },
-            look_pose="play",
+            look_pose="start",
         ),
         _scene(
             "Ramp or Wall?",
@@ -443,8 +444,9 @@ _BEGINNER_MAKE = {
                 "id": "lesson_ramp", "scene": "ramp_or_wall", "picture": "🛝",
                 "question": "Which helps the car roll down?",
                 "path": "Ramp", "block": "Wall",
+                "ramp_kind": "board",
             },
-            look_pose="play",
+            look_pose="start",
         ),
         _scene(
             "Fit the Hole",
@@ -457,8 +459,10 @@ _BEGINNER_MAKE = {
                 "id": "lesson_fit", "scene": "fit_the_hole", "picture": "⭕",
                 "question": "Which shape fits the round hole?",
                 "fits": "Circle", "misses": "Square",
+                "hole": "circle", "a": "Circle", "b": "Square",
+                "round_art": "circle", "square_art": "square",
             },
-            look_pose="play",
+            look_pose="start",
         ),
     ],
 }
