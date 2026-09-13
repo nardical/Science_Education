@@ -57,7 +57,7 @@ def test_melt_or_freeze_shuffle_uses_both_sides() -> None:
         order = remember_choice_order(
             {}, f"melt-{i}", list(trial["choices"]), rng=random.Random(i + 23)
         )
-        assert sorted(order) == _STABLE
+        assert sorted(order) == sorted(_STABLE)
         side = order.index(trial["answer"])
         shuffled_sides.append(side)
         if side == 0:
