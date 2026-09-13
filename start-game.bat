@@ -11,6 +11,9 @@ if not exist ".venv\Scripts\streamlit.exe" (
     exit /b 1
 )
 
+echo Updating Science Playground from GitHub ...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0update-from-github.ps1"
+
 echo Stopping any leftover Science Playground still using port 8501 ...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-NetTCPConnection -LocalPort 8501 -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 0 } | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
 
