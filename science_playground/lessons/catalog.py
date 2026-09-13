@@ -430,7 +430,7 @@ _BEGINNER_MAKE = {
                 "question": "Which tower will stay up?",
                 "wide": "Wide bottom", "tiny": "Tiny bottom", "wide_left": True,
             },
-            look_pose="play",
+            look_pose="start",
         ),
         _scene(
             "Ramp or Wall?",

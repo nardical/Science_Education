@@ -186,3 +186,16 @@ def test_compare_and_step_scenes_use_names_not_giveaway_tags() -> None:
     )
     assert "Ice" in melt
     assert "it melts" not in melt
+
+
+def test_tower_fall_stays_still_until_the_answer() -> None:
+    spec = {"wide": "Wide bottom", "tiny": "Tiny bottom", "wide_left": True}
+    idle = EXTRA_SCENES["tower_fall"](0, spec, pose="idle")
+    start = EXTRA_SCENES["tower_fall"](0, spec, pose="start")
+    play = EXTRA_SCENES["tower_fall"](0, spec, pose="play")
+    assert 'class="stage pose-start"' in idle
+    assert 'class="stage pose-start"' in start
+    assert 'class="stage pose-play"' in play
+    assert "animation:tip" in play
+    import inspect
+    assert "on_answer" in inspect.getsource(make_beg.run_will_the_tower_fall)

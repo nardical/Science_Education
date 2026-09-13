@@ -26,6 +26,8 @@ def _page(inner_css: str, inner_html: str, aria: str, extra_stage: str = "", rou
 
 def _pose(kwargs: dict) -> str:
     pose = str(kwargs.get("pose") or "play")
+    if pose == "idle":
+        return "start"
     return pose if pose in ("start", "play", "end") else "play"
 
 

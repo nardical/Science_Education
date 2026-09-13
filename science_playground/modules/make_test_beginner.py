@@ -118,7 +118,8 @@ def run_will_the_tower_fall() -> None:
         "answer": "Wide bottom",
         "picture": "🗼",
         "scene": "tower_fall",
-        "animate_mode": "once",
+        "animate_mode": "on_answer",
+        "anim_seconds": 1.6,
         "trials": named_trials(
             TOWERS, "tower_fall",
             "Which tower will stay up?", "Which tower will fall?",
