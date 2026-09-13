@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path: sys.path.insert(0, str(_ROOT))
+from pair_trials import pair_a_left
 from science_utils import run_game
 
 # Cycle in order, then wrap. Question alternates heavier / lighter by index.
@@ -101,7 +102,7 @@ def _heavy_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
         trial["question"] = "Which one is heavier?" if ask_heavier else "Which one is lighter?"
         trial["choices"] = [heavy, light]
         trial["answer"] = heavy if ask_heavier else light
-        trial["heavy_left"] = i % 2 == 0
+        trial["heavy_left"] = pair_a_left(i)
         trials.append(trial)
     return tuple(trials)
 

@@ -65,7 +65,8 @@ def test_scenes_use_pair_names_not_giveaway_or_sun_card() -> None:
 def test_loud_trials_carry_sounds_and_wav_is_real() -> None:
     trial = _loud_trials()[0]
     assert trial["answer_sound"] == "drum"
-    assert trial["hear_left"] == "whisper"
+    assert trial["hear_left"] == ("drum" if trial["loud_left"] else "whisper")
+    assert trial["hear_right"] == ("whisper" if trial["loud_left"] else "drum")
     wav = render_sound("drum")
     assert wav[:4] == b"RIFF"
     assert _high_trials()[0]["answer_sound"] == "high"
