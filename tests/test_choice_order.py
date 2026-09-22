@@ -7,7 +7,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "science_playground"))
 
+from modules.forces_stuff_beginner import _heavy_trials, _sticky_trials
+from modules.light_sound_beginner import _high_trials, _light_trials, _loud_trials
 from modules.matter_beginner import MELT_FREEZE
+from modules.motion_beginner import _fast_slow_trials
+from pair_trials import flip_two_choice, pair_a_left
 from science_utils import remember_choice_order, run_game
 
 _STABLE = ["Melt", "Freeze"]
@@ -81,3 +85,48 @@ def test_remembered_shuffle_stays_put_on_rerun() -> None:
     again = remember_choice_order(store, "r0", ["Melt", "Freeze"], rng=random.Random(99))
     assert first == again
     assert sorted(first) == ["Freeze", "Melt"]
+
+
+def _scene_answer_left(trials, a_key: str, left_key: str) -> list[bool]:
+    sides = []
+    for trial in trials:
+        a_on_left = bool(trial[left_key])
+        answer_is_a = trial["answer"] == trial[a_key]
+        sides.append(a_on_left if answer_is_a else not a_on_left)
+    return sides
+
+
+def test_scene_sides_no_longer_pin_the_correct_picture() -> None:
+    light = _scene_answer_left(_light_trials(), "light", "light_left")
+    loud = _scene_answer_left(_loud_trials(), "loud", "loud_left")
+    high = _scene_answer_left(_high_trials(), "high", "high_left")
+    heavy = _scene_answer_left(_heavy_trials(), "heavy", "heavy_left")
+    sticky = _scene_answer_left(_sticky_trials(), "sticky", "sticky_left")
+    for sides, name in (
+        (light, "light"),
+        (loud, "loud"),
+        (high, "high"),
+        (heavy, "heavy"),
+        (sticky, "sticky"),
+    ):
+        assert True in sides and False in sides, name
+        assert sides != [True] * 10, name
+        assert sides != [False] * 10, name
+
+
+def test_pair_a_left_is_independent_of_the_question() -> None:
+    assert [pair_a_left(i) for i in range(10)] == [
+        True, True, False, False, True, True, False, False, True, True,
+    ]
+    pairs = (
+        {"a": "Yes", "b": "No", "a_pic": "🟢", "b_pic": "🔴"},
+        {"a": "Up", "b": "Down", "a_pic": "⬆️", "b_pic": "⬇️"},
+        {"a": "In", "b": "Out", "a_pic": "📥", "b_pic": "📤"},
+        {"a": "Hot", "b": "Cold", "a_pic": "🔥", "b_pic": "❄️"},
+    )
+    trials = flip_two_choice(
+        pairs, a="a", b="b", q_for_a="Which is A?", q_for_b="Which is B?", scene="compare",
+    )
+    answer_left = [trial["left_name"] == trial["answer"] for trial in trials]
+    assert answer_left == [True, False, False, True]
+    assert _fast_slow_trials()[0]["fast_top"] is True

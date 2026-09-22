@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path: sys.path.insert(0, str(_ROOT))
+from pair_trials import pair_a_left
 from science_utils import run_game
 
 # Cycle in order, then wrap. Some stories only make sense as push or pull.
@@ -200,7 +201,7 @@ def _fast_slow_trials() -> tuple[dict[str, str | list[str] | bool], ...]:
         trial["question"] = "Which one is faster?" if ask_faster else "Which one is slower?"
         trial["choices"] = [fast, slow]
         trial["answer"] = fast if ask_faster else slow
-        trial["fast_top"] = i % 2 == 1
+        trial["fast_top"] = pair_a_left(i)
         trial["picture"] = pair.get("fast_pic") or "🏎️"
         trials.append(trial)
     return tuple(trials)
