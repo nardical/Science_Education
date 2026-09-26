@@ -9,7 +9,7 @@ python -m pip install -r requirements.txt
 streamlit run science_playground/app.py
 ```
 
-Or double-click `start-game.bat` on Windows. That script pulls the latest `main` from GitHub when this folder has no local edits, stops any leftover game still using port 8501, then starts a fresh one. If a browser tab is already on http://localhost:8501, press Ctrl+Shift+R or open a new tab.
+Or double-click `start-game.bat` on Windows. That script pulls the latest `main` from GitHub when this folder has no local edits, stops any leftover game still using port 8503, then starts a fresh one. If a browser tab is already on http://localhost:8503, press Ctrl+Shift+R or open a new tab. Science Playground uses port 8503 so it can run alongside the other playgrounds.
 
 ## What is included
 
